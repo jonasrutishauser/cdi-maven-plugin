@@ -1,0 +1,30 @@
+#[[##]]# Usage
+
+#[[###]]# Validate the CDI configuration as Part of the Build
+
+To validate the cdi configuration as part of the build, add the following in the `<build>` section of your POM:
+
+```xml
+<project>
+   [...]
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>${project.artifactId}</artifactId>
+            <version>${project.version}</version>
+            <executions>
+               <execution>
+                  <goals>
+                     <goal>validate</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>
+      </plugins>
+   </build>
+   [...]
+</project>
+```
+
+When `mvn verify` is invoked, the validation will be done during the project build.

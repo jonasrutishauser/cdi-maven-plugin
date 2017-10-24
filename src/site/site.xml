@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/DECORATION/1.7.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/DECORATION/1.7.0 http://maven.apache.org/xsd/decoration-1.7.0.xsd">
+
+	<publishDate position="right" />
+	<version position="right" />
+
+	<body>
+		<links>
+			<item name="Maven" href="https://maven.apache.org/" />
+		</links>
+		<breadcrumbs>
+			<item name="${project.name}" href="${project.url}" />
+		</breadcrumbs>
+		<menu name="Overview">
+			<item name="Introduction" href="index.html"/>
+            <item name="Goals" ref="plugin-info"/>
+            <item name="Usage" href="usage.html"/>
+            <item name="Release Notes" ref="github-report"/>
+		</menu>
+	</body>
+
+</project>
