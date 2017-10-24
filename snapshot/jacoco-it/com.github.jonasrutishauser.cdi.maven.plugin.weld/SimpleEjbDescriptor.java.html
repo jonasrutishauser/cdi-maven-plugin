@@ -1,5 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SimpleEjbDescriptor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CDI Maven Plugin</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.cdi.maven.plugin.weld</a> &gt; <span class="el_source">SimpleEjbDescriptor.java</span></div><h1>SimpleEjbDescriptor.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.cdi.maven.plugin.weld;
 
+/*
+ * Copyright (C) 2017 Jonas Rutishauser
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation version 3 of the License.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.
+ * If not, see &lt;http://www.gnu.org/licenses/lgpl-3.0.txt&gt;.
+ */
+
 import java.io.Externalizable;
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -22,105 +39,105 @@ public class SimpleEjbDescriptor&lt;T&gt; implements EjbDescriptor&lt;T&gt; {
 
     private final Class&lt;T&gt; beanClass;
     private final String name;
-<span class="fc" id="L25">    private final Collection&lt;BusinessInterfaceDescriptor&lt;?&gt;&gt; localBusinessInterfaces = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L42">    private final Collection&lt;BusinessInterfaceDescriptor&lt;?&gt;&gt; localBusinessInterfaces = new HashSet&lt;&gt;();</span>
 
     public SimpleEjbDescriptor(Class&lt;T&gt; beanClass) {
-<span class="fc" id="L28">        this(beanClass, beanClass.getSimpleName());</span>
-<span class="fc" id="L29">    }</span>
+<span class="fc" id="L45">        this(beanClass, beanClass.getSimpleName());</span>
+<span class="fc" id="L46">    }</span>
 
-<span class="fc" id="L31">    public SimpleEjbDescriptor(Class&lt;T&gt; beanClass, String name) {</span>
-<span class="fc" id="L32">        this.beanClass = beanClass;</span>
-<span class="fc" id="L33">        this.name = name;</span>
-<span class="fc" id="L34">        collectLocalInterfaces();</span>
-<span class="fc" id="L35">    }</span>
+<span class="fc" id="L48">    public SimpleEjbDescriptor(Class&lt;T&gt; beanClass, String name) {</span>
+<span class="fc" id="L49">        this.beanClass = beanClass;</span>
+<span class="fc" id="L50">        this.name = name;</span>
+<span class="fc" id="L51">        collectLocalInterfaces();</span>
+<span class="fc" id="L52">    }</span>
 
     private void collectLocalInterfaces() {
-<span class="fc" id="L38">        Local localAnnotation = beanClass.getAnnotation(Local.class);</span>
-<span class="fc" id="L39">        List&lt;Class&lt;?&gt;&gt; interfaces = Arrays.stream(beanClass.getInterfaces())</span>
-<span class="fc" id="L40">                .filter(Predicate.&lt;Class&lt;?&gt;&gt;isEqual(Serializable.class)</span>
-<span class="fc" id="L41">                        .or(Predicate.&lt;Class&lt;?&gt;&gt;isEqual(Externalizable.class)</span>
-<span class="fc" id="L42">                                .or(type -&gt; type.getName().startsWith(&quot;javax.ejb.&quot;)).negate()))</span>
-<span class="fc" id="L43">                .collect(Collectors.toList());</span>
-<span class="pc bpc" id="L44" title="1 of 4 branches missed.">        if (localAnnotation != null &amp;&amp; localAnnotation.value().length &gt; 0) {</span>
-<span class="fc bfc" id="L45" title="All 2 branches covered.">            for (Class&lt;?&gt; type : localAnnotation.value()) {</span>
-<span class="fc" id="L46">                localBusinessInterfaces.add(new BusinessInterface&lt;&gt;(type));</span>
+<span class="fc" id="L55">        Local localAnnotation = beanClass.getAnnotation(Local.class);</span>
+<span class="fc" id="L56">        List&lt;Class&lt;?&gt;&gt; interfaces = Arrays.stream(beanClass.getInterfaces())</span>
+<span class="fc" id="L57">                .filter(Predicate.&lt;Class&lt;?&gt;&gt;isEqual(Serializable.class)</span>
+<span class="fc" id="L58">                        .or(Predicate.&lt;Class&lt;?&gt;&gt;isEqual(Externalizable.class)</span>
+<span class="fc" id="L59">                                .or(type -&gt; type.getName().startsWith(&quot;javax.ejb.&quot;)).negate()))</span>
+<span class="fc" id="L60">                .collect(Collectors.toList());</span>
+<span class="pc bpc" id="L61" title="1 of 4 branches missed.">        if (localAnnotation != null &amp;&amp; localAnnotation.value().length &gt; 0) {</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">            for (Class&lt;?&gt; type : localAnnotation.value()) {</span>
+<span class="fc" id="L63">                localBusinessInterfaces.add(new BusinessInterface&lt;&gt;(type));</span>
             }
-<span class="pc bpc" id="L48" title="1 of 4 branches missed.">        } else if (interfaces.size() == 1</span>
-<span class="pc bpc" id="L49" title="1 of 2 branches missed.">                &amp;&amp; (localAnnotation != null || !interfaces.get(0).isAnnotationPresent(Remote.class))) {</span>
-<span class="fc" id="L50">            localBusinessInterfaces.add(new BusinessInterface&lt;&gt;(beanClass.getInterfaces()[0]));</span>
+<span class="pc bpc" id="L65" title="1 of 4 branches missed.">        } else if (interfaces.size() == 1</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">                &amp;&amp; (localAnnotation != null || !interfaces.get(0).isAnnotationPresent(Remote.class))) {</span>
+<span class="fc" id="L67">            localBusinessInterfaces.add(new BusinessInterface&lt;&gt;(beanClass.getInterfaces()[0]));</span>
         }
-<span class="fc bfc" id="L52" title="All 2 branches covered.">        if (beanClass.isAnnotationPresent(LocalBean.class)) {</span>
-<span class="fc" id="L53">            localBusinessInterfaces.add(new BusinessInterface&lt;&gt;(beanClass));</span>
-<span class="pc bpc" id="L54" title="1 of 4 branches missed.">        } else if (localBusinessInterfaces.isEmpty() &amp;&amp; interfaces.isEmpty()</span>
-<span class="pc bpc" id="L55" title="1 of 2 branches missed.">                &amp;&amp; !beanClass.isAnnotationPresent(Remote.class)) {</span>
-<span class="fc" id="L56">            localBusinessInterfaces.add(new BusinessInterface&lt;&gt;(beanClass));</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        if (beanClass.isAnnotationPresent(LocalBean.class)) {</span>
+<span class="fc" id="L70">            localBusinessInterfaces.add(new BusinessInterface&lt;&gt;(beanClass));</span>
+<span class="pc bpc" id="L71" title="1 of 4 branches missed.">        } else if (localBusinessInterfaces.isEmpty() &amp;&amp; interfaces.isEmpty()</span>
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">                &amp;&amp; !beanClass.isAnnotationPresent(Remote.class)) {</span>
+<span class="fc" id="L73">            localBusinessInterfaces.add(new BusinessInterface&lt;&gt;(beanClass));</span>
         }
-<span class="fc" id="L58">    }</span>
+<span class="fc" id="L75">    }</span>
 
     @Override
     public Class&lt;T&gt; getBeanClass() {
-<span class="fc" id="L62">        return beanClass;</span>
+<span class="fc" id="L79">        return beanClass;</span>
     }
 
     @Override
     public Collection&lt;BusinessInterfaceDescriptor&lt;?&gt;&gt; getLocalBusinessInterfaces() {
-<span class="fc" id="L67">        return localBusinessInterfaces;</span>
+<span class="fc" id="L84">        return localBusinessInterfaces;</span>
     }
 
     @Override
     public Collection&lt;BusinessInterfaceDescriptor&lt;?&gt;&gt; getRemoteBusinessInterfaces() {
-<span class="fc" id="L72">        return Collections.emptyList();</span>
+<span class="fc" id="L89">        return Collections.emptyList();</span>
     }
 
     @Override
     public String getEjbName() {
-<span class="fc" id="L77">        return name;</span>
+<span class="fc" id="L94">        return name;</span>
     }
 
     @Override
     public Collection&lt;Method&gt; getRemoveMethods() {
-<span class="fc" id="L82">        return Collections.emptyList();</span>
+<span class="fc" id="L99">        return Collections.emptyList();</span>
     }
 
     @Override
     public boolean isStateless() {
-<span class="fc" id="L87">        return true;</span>
+<span class="fc" id="L104">        return true;</span>
     }
 
     @Override
     public boolean isSingleton() {
-<span class="fc" id="L92">        return false;</span>
+<span class="fc" id="L109">        return false;</span>
     }
 
     @Override
     public boolean isStateful() {
-<span class="fc" id="L97">        return false;</span>
+<span class="fc" id="L114">        return false;</span>
     }
 
     @Override
     public boolean isMessageDriven() {
-<span class="fc" id="L102">        return false;</span>
+<span class="fc" id="L119">        return false;</span>
     }
 
     @Override
     public boolean isPassivationCapable() {
-<span class="nc" id="L107">        return false;</span>
+<span class="nc" id="L124">        return false;</span>
     }
 
     public void addLocalInterface(Class&lt;?&gt; type) {
-<span class="fc" id="L111">        localBusinessInterfaces.add(new BusinessInterface&lt;&gt;(type));</span>
-<span class="fc" id="L112">    }</span>
+<span class="fc" id="L128">        localBusinessInterfaces.add(new BusinessInterface&lt;&gt;(type));</span>
+<span class="fc" id="L129">    }</span>
 
     private static class BusinessInterface&lt;T&gt; implements BusinessInterfaceDescriptor&lt;T&gt; {
         private final Class&lt;T&gt; type;
 
-<span class="fc" id="L117">        public BusinessInterface(Class&lt;T&gt; type) {</span>
-<span class="fc" id="L118">            this.type = type;</span>
-<span class="fc" id="L119">        }</span>
+<span class="fc" id="L134">        public BusinessInterface(Class&lt;T&gt; type) {</span>
+<span class="fc" id="L135">            this.type = type;</span>
+<span class="fc" id="L136">        }</span>
 
         @Override
         public Class&lt;T&gt; getInterface() {
-<span class="fc" id="L123">            return type;</span>
+<span class="fc" id="L140">            return type;</span>
         }
     }
 
