@@ -1,0 +1,127 @@
+package com.github.jonasrutishauser.cdi.maven.plugin.weld;
+
+import java.io.Externalizable;
+import java.io.Serializable;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import javax.ejb.Local;
+import javax.ejb.LocalBean;
+import javax.ejb.Remote;
+
+import org.jboss.weld.ejb.spi.BusinessInterfaceDescriptor;
+import org.jboss.weld.ejb.spi.EjbDescriptor;
+
+public class SimpleEjbDescriptor<T> implements EjbDescriptor<T> {
+
+    private final Class<T> beanClass;
+    private final String name;
+    private final Collection<BusinessInterfaceDescriptor<?>> localBusinessInterfaces = new HashSet<>();
+
+    public SimpleEjbDescriptor(Class<T> beanClass) {
+        this(beanClass, beanClass.getSimpleName());
+    }
+
+    public SimpleEjbDescriptor(Class<T> beanClass, String name) {
+        this.beanClass = beanClass;
+        this.name = name;
+        collectLocalInterfaces();
+    }
+
+    private void collectLocalInterfaces() {
+        Local localAnnotation = beanClass.getAnnotation(Local.class);
+        List<Class<?>> interfaces = Arrays.stream(beanClass.getInterfaces())
+                .filter(Predicate.<Class<?>>isEqual(Serializable.class)
+                        .or(Predicate.<Class<?>>isEqual(Externalizable.class)
+                                .or(type -> type.getName().startsWith("javax.ejb.")).negate()))
+                .collect(Collectors.toList());
+        if (localAnnotation != null && localAnnotation.value().length > 0) {
+            for (Class<?> type : localAnnotation.value()) {
+                localBusinessInterfaces.add(new BusinessInterface<>(type));
+            }
+        } else if (interfaces.size() == 1
+                && (localAnnotation != null || !interfaces.get(0).isAnnotationPresent(Remote.class))) {
+            localBusinessInterfaces.add(new BusinessInterface<>(beanClass.getInterfaces()[0]));
+        }
+        if (beanClass.isAnnotationPresent(LocalBean.class)) {
+            localBusinessInterfaces.add(new BusinessInterface<>(beanClass));
+        } else if (localBusinessInterfaces.isEmpty() && interfaces.isEmpty()
+                && !beanClass.isAnnotationPresent(Remote.class)) {
+            localBusinessInterfaces.add(new BusinessInterface<>(beanClass));
+        }
+    }
+
+    @Override
+    public Class<T> getBeanClass() {
+        return beanClass;
+    }
+
+    @Override
+    public Collection<BusinessInterfaceDescriptor<?>> getLocalBusinessInterfaces() {
+        return localBusinessInterfaces;
+    }
+
+    @Override
+    public Collection<BusinessInterfaceDescriptor<?>> getRemoteBusinessInterfaces() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public String getEjbName() {
+        return name;
+    }
+
+    @Override
+    public Collection<Method> getRemoveMethods() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public boolean isStateless() {
+        return true;
+    }
+
+    @Override
+    public boolean isSingleton() {
+        return false;
+    }
+
+    @Override
+    public boolean isStateful() {
+        return false;
+    }
+
+    @Override
+    public boolean isMessageDriven() {
+        return false;
+    }
+
+    @Override
+    public boolean isPassivationCapable() {
+        return false;
+    }
+
+    public void addLocalInterface(Class<?> type) {
+        localBusinessInterfaces.add(new BusinessInterface<>(type));
+    }
+
+    private static class BusinessInterface<T> implements BusinessInterfaceDescriptor<T> {
+        private final Class<T> type;
+
+        public BusinessInterface(Class<T> type) {
+            this.type = type;
+        }
+
+        @Override
+        public Class<T> getInterface() {
+            return type;
+        }
+    }
+
+}
