@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EjbUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CDI Maven Plugin</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.cdi.maven.plugin.ear</a> &gt; <span class="el_source">EjbUtil.java</span></div><h1>EjbUtil.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.cdi.maven.plugin.ear;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import javax.ejb.MessageDriven;
+import javax.ejb.Singleton;
+import javax.ejb.Stateful;
+import javax.ejb.Stateless;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathException;
+import javax.xml.xpath.XPathFactory;
+
+import org.jboss.weld.bootstrap.spi.EEModuleDescriptor;
+import org.jboss.weld.bootstrap.spi.EEModuleDescriptor.ModuleType;
+import org.jboss.weld.bootstrap.spi.helpers.EEModuleDescriptorImpl;
+import org.jboss.weld.ejb.spi.EjbDescriptor;
+import org.jboss.weld.environment.deployment.WeldBeanDeploymentArchive;
+import org.jboss.weld.resources.spi.ResourceLoader;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import com.github.jonasrutishauser.cdi.maven.plugin.weld.SimpleEjbDescriptor;
+import com.github.jonasrutishauser.cdi.maven.plugin.weld.WarBeanArchiveScanner;
+
+<span class="fc" id="L44">public class EjbUtil {</span>
+
+    public void addBeanDefiningAnnotations(Set&lt;Class&lt;? extends Annotation&gt;&gt; annotations) {
+<span class="fc" id="L47">        annotations.add(Stateless.class);</span>
+<span class="fc" id="L48">        annotations.add(Stateful.class);</span>
+<span class="fc" id="L49">        annotations.add(Singleton.class);</span>
+<span class="fc" id="L50">        annotations.add(MessageDriven.class);</span>
+<span class="fc" id="L51">    }</span>
+
+    public WeldBeanDeploymentArchive addEjbDescriptors(WeldBeanDeploymentArchive archive) {
+<span class="fc" id="L54">        archive.getServices().add(EEModuleDescriptor.class,</span>
+<span class="fc" id="L55">                new EEModuleDescriptorImpl(archive.getId(), ModuleType.EJB_JAR));</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">        Predicate&lt;Class&lt;?&gt;&gt; isEjb = type -&gt; type.isAnnotationPresent(Stateless.class)</span>
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">                || type.isAnnotationPresent(Stateful.class) //</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">                || type.isAnnotationPresent(Singleton.class) //</span>
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">                || type.isAnnotationPresent(MessageDriven.class);</span>
+<span class="fc" id="L60">        ResourceLoader resourceLoader = archive.getServices().get(ResourceLoader.class);</span>
+<span class="fc" id="L61">        Map&lt;String, EjbDescriptor&lt;?&gt;&gt; descriptors = archive.getBeanClasses().stream().map(resourceLoader::classForName)</span>
+<span class="fc" id="L62">                .filter(isEjb).collect(Collectors.toMap(Class::getSimpleName, SimpleEjbDescriptor::new, (u, v) -&gt; {</span>
+<span class="nc" id="L63">                    throw new IllegalStateException(String.format(&quot;Duplicate key %s&quot;, u));</span>
+                }, HashMap::new));
+<span class="fc" id="L65">        String archivePath = archive.getId();</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">        if (archivePath.endsWith(WarBeanArchiveScanner.CLASSES)) {</span>
+<span class="fc" id="L67">            addEjbsFromDescriptor(descriptors, resourceLoader,</span>
+<span class="fc" id="L68">                    new File(new File(archivePath).getParentFile(), &quot;ejb-jar.xml&quot;).toURI().toString());</span>
+        } else {
+<span class="fc" id="L70">            addEjbsFromDescriptor(descriptors, resourceLoader,</span>
+<span class="fc" id="L71">                    &quot;jar:&quot; + new File(archivePath).toURI() + &quot;!/META-INF/ejb-jar.xml&quot;);</span>
+        }
+<span class="fc" id="L73">        WeldBeanDeploymentArchive weldBeanDeploymentArchive = new WeldBeanDeploymentArchive(archive.getId(), archive.getBeanClasses(), archive.getBeansXml()) {</span>
+            @Override
+            public Collection&lt;EjbDescriptor&lt;?&gt;&gt; getEjbs() {
+<span class="fc" id="L76">                return descriptors.values();</span>
+            }
+        };
+<span class="fc" id="L79">        weldBeanDeploymentArchive.getServices().addAll(archive.getServices().entrySet());</span>
+<span class="fc" id="L80">        return weldBeanDeploymentArchive;</span>
+    }
+
+    private void addEjbsFromDescriptor(Map&lt;String, EjbDescriptor&lt;?&gt;&gt; ejbs, ResourceLoader resourceLoader,
+            String descriptorUrl) {
+        try {
+<span class="fc" id="L86">            DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();</span>
+<span class="fc" id="L87">            Document doc = documentBuilder.parse(descriptorUrl);</span>
+<span class="fc" id="L88">            XPath xPath = XPathFactory.newInstance().newXPath();</span>
+<span class="fc" id="L89">            NodeList beans = (NodeList) xPath.evaluate(&quot;//enterprise-beans/*&quot;, doc, XPathConstants.NODESET);</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">            for (int i = 0; i &lt; beans.getLength(); i++) {</span>
+<span class="fc" id="L91">                Element bean = (Element) beans.item(i);</span>
+<span class="fc" id="L92">                String name = getValue(bean, &quot;ejb-name&quot;).get();</span>
+<span class="fc" id="L93">                SimpleEjbDescriptor&lt;?&gt; descriptor = (SimpleEjbDescriptor&lt;?&gt;) ejbs.computeIfAbsent(name,</span>
+<span class="fc" id="L94">                        beanName -&gt; new SimpleEjbDescriptor&lt;&gt;(</span>
+<span class="fc" id="L95">                                resourceLoader.classForName(getValue(bean, &quot;ejb-class&quot;).get()), beanName));</span>
+<span class="fc" id="L96">                boolean hasInterface = hasInterface(bean);</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">                if (hasInterface) {</span>
+<span class="fc" id="L98">                    descriptor.getLocalBusinessInterfaces().clear();</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">                    if (getValue(bean, &quot;local-bean&quot;).isPresent()) {</span>
+<span class="fc" id="L100">                        descriptor.addLocalInterface(descriptor.getBeanClass());</span>
+                    }
+<span class="fc" id="L102">                    NodeList interfaces = bean.getElementsByTagName(&quot;business-local&quot;);</span>
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">                    for (int j = 0; j &lt; interfaces.getLength(); j++) {</span>
+<span class="nc" id="L104">                        descriptor.addLocalInterface(resourceLoader.classForName(interfaces.item(j).getTextContent()));</span>
+                    }
+                }
+            }
+<span class="nc" id="L108">        } catch (ParserConfigurationException | SAXException | XPathException e) {</span>
+<span class="nc" id="L109">            LoggerFactory.getLogger(getClass()).warn(&quot;failed to read deployment descriptor in &quot; + descriptorUrl, e);</span>
+<span class="fc" id="L110">        } catch (IOException e) {</span>
+            // ignore
+<span class="pc" id="L112">        }</span>
+<span class="fc" id="L113">    }</span>
+
+    private boolean hasInterface(Element bean) {
+<span class="fc" id="L116">        Set&lt;String&gt; interfaces = new HashSet&lt;&gt;(Arrays.asList(&quot;home&quot;, &quot;remote&quot;, &quot;local-home&quot;, &quot;local&quot;, &quot;business-local&quot;,</span>
+                &quot;business-remote&quot;, &quot;local-bean&quot;));
+<span class="fc bfc" id="L118" title="All 2 branches covered.">        for (int i = 0; i &lt; bean.getChildNodes().getLength(); i++) {</span>
+<span class="fc" id="L119">            Node node = bean.getChildNodes().item(i);</span>
+<span class="fc bfc" id="L120" title="All 4 branches covered.">            if (node instanceof Element &amp;&amp; interfaces.contains(node.getNodeName())) {</span>
+<span class="fc" id="L121">                return true;</span>
+            }
+        }
+<span class="fc" id="L124">        return false;</span>
+    }
+
+    private Optional&lt;String&gt; getValue(Element element, String elementName) {
+<span class="fc" id="L128">        NodeList elements = element.getElementsByTagName(elementName);</span>
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">        if (elements.getLength() == 1) {</span>
+<span class="fc" id="L130">            return Optional.of(elements.item(0).getTextContent());</span>
+        }
+<span class="nc" id="L132">        return Optional.empty();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

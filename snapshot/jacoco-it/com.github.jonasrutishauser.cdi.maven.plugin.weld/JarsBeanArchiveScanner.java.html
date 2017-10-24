@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JarsBeanArchiveScanner.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CDI Maven Plugin</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.cdi.maven.plugin.weld</a> &gt; <span class="el_source">JarsBeanArchiveScanner.java</span></div><h1>JarsBeanArchiveScanner.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.cdi.maven.plugin.weld;
+
+import java.io.File;
+import java.net.URL;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.jboss.weld.bootstrap.api.Bootstrap;
+import org.jboss.weld.bootstrap.spi.BeansXml;
+import org.jboss.weld.environment.deployment.AbstractWeldDeployment;
+import org.jboss.weld.environment.deployment.discovery.AbstractBeanArchiveScanner;
+
+public class JarsBeanArchiveScanner extends AbstractBeanArchiveScanner {
+    private final Collection&lt;File&gt; jars;
+
+    public JarsBeanArchiveScanner(Bootstrap bootstrap, Collection&lt;File&gt; jars) {
+<span class="fc" id="L19">        super(bootstrap);</span>
+<span class="fc" id="L20">        this.jars = jars;</span>
+<span class="fc" id="L21">    }</span>
+
+    @Override
+    public List&lt;ScanResult&gt; scan() {
+<span class="fc" id="L25">        return jars.stream().map(this::getScanResult).filter(Optional::isPresent).map(Optional::get)</span>
+<span class="fc" id="L26">                .collect(Collectors.toList());</span>
+    }
+
+    private Optional&lt;ScanResult&gt; getScanResult(File jar) {
+<span class="fc" id="L30">        String beanArchiveRef = jar.getPath();</span>
+        try {
+<span class="fc" id="L32">            BeansXml beansXml = parseBeansXml(new URL(&quot;jar:&quot; + jar.toURI() + &quot;!/&quot; + AbstractWeldDeployment.BEANS_XML));</span>
+<span class="pc bpc" id="L33" title="1 of 2 branches missed.">            return accept(beansXml) ? Optional.of(new ScanResult(beansXml, beanArchiveRef))</span>
+<span class="nc" id="L34">                    : Optional.empty();</span>
+<span class="fc" id="L35">        } catch (Exception e) {</span>
+<span class="fc" id="L36">            return Optional.of(new ScanResult(null, beanArchiveRef));</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
