@@ -1,0 +1,5 @@
+com.github.jonasrutishauser.cdi.maven.plugin
+com.github.jonasrutishauser.cdi.maven.plugin.ear
+com.github.jonasrutishauser.cdi.maven.plugin.war
+com.github.jonasrutishauser.cdi.maven.plugin.weld
+com.github.jonasrutishauser.cdi.maven.plugin.weld.services
