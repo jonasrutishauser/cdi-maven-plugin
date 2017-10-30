@@ -35,9 +35,8 @@ import org.jboss.weld.bootstrap.api.CDI11Bootstrap;
 import org.jboss.weld.bootstrap.api.Environments;
 import org.slf4j.LoggerFactory;
 
-import com.github.jonasrutishauser.cdi.maven.plugin.ear.ArchiveUtil;
 import com.github.jonasrutishauser.cdi.maven.plugin.ear.EarUtil;
-import com.github.jonasrutishauser.cdi.maven.plugin.ear.WarUtil;
+import com.github.jonasrutishauser.cdi.maven.plugin.war.WarUtil;
 
 /**
  * Validates the CDI configuration of a war or ear.

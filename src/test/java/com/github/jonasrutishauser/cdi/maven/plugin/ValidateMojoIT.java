@@ -36,7 +36,7 @@ import io.takari.maven.testing.executor.MavenVersions;
 import io.takari.maven.testing.executor.junit.MavenJUnitTestRunner;
 
 @RunWith(MavenJUnitTestRunner.class)
-@MavenVersions({"3.3.3", "3.3.9", "3.5.0"})
+@MavenVersions({"3.3.3", "3.3.9", "3.5.0", "3.5.2"})
 public class ValidateMojoIT {
 
     @Rule
@@ -159,6 +159,25 @@ public class ValidateMojoIT {
 
         result.assertLogText("Unsatisfied dependencies for type Foo with qualifiers @Default")
                 .assertLogText("protected test.TestImpl(Foo)").assertLogText("SKIPPED");
+    }
+
+    @Test
+    public void verifyFullValid() throws Exception {
+        File basedir = resources.getBasedir("full");
+
+        MavenExecutionResult result = mavenRuntime.forProject(basedir).execute("clean", "verify");
+
+        result.assertErrorFreeLog().assertLogText("Managed Bean [class test.TestWarImpl]");
+    }
+
+    @Test
+    public void verifyFullSkinnyWarsValid() throws Exception {
+        File basedir = resources.getBasedir("full");
+
+        MavenExecutionResult result = mavenRuntime.forProject(basedir).withCliOption("-Dmaven.ear.skinnyWars=true")
+                .execute("clean", "verify");
+
+        result.assertErrorFreeLog().assertLogText("Managed Bean [class test.TestWarImpl]");
     }
 
 }

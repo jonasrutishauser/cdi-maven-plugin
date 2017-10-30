@@ -1,4 +1,4 @@
-package com.github.jonasrutishauser.cdi.maven.plugin.ear;
+package com.github.jonasrutishauser.cdi.maven.plugin.war;
 
 /*
  * Copyright (C) 2017 Jonas Rutishauser
@@ -46,6 +46,8 @@ import org.jboss.weld.environment.deployment.discovery.DiscoveryStrategyFactory;
 import org.jboss.weld.resources.ClassLoaderResourceLoader;
 import org.jboss.weld.resources.spi.ResourceLoader;
 
+import com.github.jonasrutishauser.cdi.maven.plugin.ArchiveUtil;
+import com.github.jonasrutishauser.cdi.maven.plugin.ear.EjbUtil;
 import com.github.jonasrutishauser.cdi.maven.plugin.weld.WarBeanArchiveScanner;
 import com.github.jonasrutishauser.cdi.maven.plugin.weld.WarDeployment;
 
@@ -61,15 +63,19 @@ public class WarUtil implements ArchiveUtil {
         this.archiverManager = archiverManager;
     }
 
-    public static WarUtil create(ArchiverManager archiverManager, File workDirectory, File warFile)
-            throws MalformedURLException {
+    public static WarUtil create(ArchiverManager archiverManager, File workDirectory, File warFile,
+            ClassLoader earClassloader) throws MalformedURLException {
         WarUtil util = new WarUtil(archiverManager);
-        util.init(workDirectory, warFile);
+        util.init(workDirectory, warFile, earClassloader);
         return util;
     }
 
     @Override
     public void init(File workDirectory, File warFile) throws MalformedURLException {
+        init(workDirectory, warFile, getClass().getClassLoader());
+    }
+
+    private void init(File workDirectory, File warFile, ClassLoader parentClassloader) throws MalformedURLException {
         UnArchiver unArchiver;
         try {
             unArchiver = archiverManager.getUnArchiver(warFile);
@@ -91,7 +97,7 @@ public class WarUtil implements ArchiveUtil {
                 urls.add(jar.toURI().toURL());
             }
         }
-        warClassloader = new URLClassLoader(urls.toArray(new URL[urls.size()]), getClass().getClassLoader());
+        warClassloader = new URLClassLoader(urls.toArray(new URL[urls.size()]), parentClassloader);
     }
 
     @Override

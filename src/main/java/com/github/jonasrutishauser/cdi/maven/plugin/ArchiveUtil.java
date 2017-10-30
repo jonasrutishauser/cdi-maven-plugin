@@ -1,4 +1,4 @@
-package com.github.jonasrutishauser.cdi.maven.plugin.ear;
+package com.github.jonasrutishauser.cdi.maven.plugin;
 
 /*
  * Copyright (C) 2017 Jonas Rutishauser

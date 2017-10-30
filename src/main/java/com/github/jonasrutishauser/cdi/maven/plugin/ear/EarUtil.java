@@ -63,6 +63,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.github.jonasrutishauser.cdi.maven.plugin.ArchiveUtil;
+import com.github.jonasrutishauser.cdi.maven.plugin.war.WarUtil;
 import com.github.jonasrutishauser.cdi.maven.plugin.weld.EarDeployment;
 import com.github.jonasrutishauser.cdi.maven.plugin.weld.JarsBeanArchiveScanner;
 
@@ -145,6 +147,7 @@ public class EarUtil implements ArchiveUtil {
         unArchiver.setSourceFile(earFile);
         unArchiver.extract();
         File libDir = new File(extractedDir, "lib");
+        Set<File> warFiles = new HashSet<>();
         try {
             DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document doc = documentBuilder.parse(new File(extractedDir, "META-INF/application.xml"));
@@ -157,7 +160,7 @@ public class EarUtil implements ArchiveUtil {
                 } else if ("web".equals(module.getNodeName())) {
                     File warFile = new File(extractedDir,
                             (String) xPath.evaluate("web-uri/text()", module, XPathConstants.STRING));
-                    wars.add(WarUtil.create(archiverManager, workDirectory, warFile));
+                    warFiles.add(warFile);
                 } else {
                     libraries.add(new File(extractedDir, module.getTextContent()));
                 }
@@ -183,6 +186,9 @@ public class EarUtil implements ArchiveUtil {
             urls.add(library.toURI().toURL());
         }
         earClassloader = new URLClassLoader(urls.toArray(new URL[urls.size()]), getClass().getClassLoader());
+        for (File warFile : warFiles) {
+            wars.add(WarUtil.create(archiverManager, workDirectory, warFile, earClassloader));
+        }
     }
 
 }
