@@ -50,12 +50,12 @@ public final class WarBeanArchiveScanner extends JarsBeanArchiveScanner {
     @Override
     public List&lt;ScanResult&gt; scan() {
 <span class="fc" id="L52">        File beansXmlFile = new File(war, BEANS_XML);</span>
-<span class="pc bpc" id="L53" title="1 of 2 branches missed.">        if (!beansXmlFile.exists()) {</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        if (!beansXmlFile.exists()) {</span>
 <span class="fc" id="L54">            beansXmlFile = new File(war, CLASSES + AbstractWeldDeployment.BEANS_XML);</span>
         }
         BeansXml beansXml;
         try {
-<span class="pc bpc" id="L58" title="1 of 2 branches missed.">            beansXml = beansXmlFile.exists() ? parseBeansXml(beansXmlFile.toURI().toURL()) : null;</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">            beansXml = beansXmlFile.exists() ? parseBeansXml(beansXmlFile.toURI().toURL()) : null;</span>
 <span class="nc" id="L59">        } catch (MalformedURLException e) {</span>
 <span class="nc" id="L60">            throw new IllegalStateException(e);</span>
 <span class="fc" id="L61">        }</span>
