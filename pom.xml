@@ -9,7 +9,7 @@
 
 	<groupId>com.github.jonasrutishauser.maven.plugin</groupId>
 	<artifactId>cdi-maven-plugin</artifactId>
-	<version>1.0.2-SNAPSHOT</version>
+	<version>1.0.2</version>
 	<packaging>maven-plugin</packaging>
 
 	<url>${url}</url>
@@ -134,7 +134,7 @@
 		<connection>${scm.connection}</connection>
 		<developerConnection>${scm.developerConnection}</developerConnection>
 		<url>${scm.url}</url>
-		<tag>HEAD</tag>
+		<tag>v1.0.2</tag>
 	</scm>
 
 	<distributionManagement>
