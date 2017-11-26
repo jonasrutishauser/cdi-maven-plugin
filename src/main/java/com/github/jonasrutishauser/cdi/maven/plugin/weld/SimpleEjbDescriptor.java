@@ -66,12 +66,14 @@ public class SimpleEjbDescriptor<T> implements EjbDescriptor<T> {
                 && (localAnnotation != null || !interfaces.get(0).isAnnotationPresent(Remote.class))) {
             localBusinessInterfaces.add(new BusinessInterface<>(beanClass.getInterfaces()[0]));
         }
-        if (beanClass.isAnnotationPresent(LocalBean.class)) {
-            localBusinessInterfaces.add(new BusinessInterface<>(beanClass));
-        } else if (localBusinessInterfaces.isEmpty() && interfaces.isEmpty()
-                && !beanClass.isAnnotationPresent(Remote.class)) {
+        if (beanClass.isAnnotationPresent(LocalBean.class)
+                || (localBusinessInterfaces.isEmpty() && noRemoteInterfaceDefined(interfaces))) {
             localBusinessInterfaces.add(new BusinessInterface<>(beanClass));
         }
+    }
+
+    private boolean noRemoteInterfaceDefined(List<Class<?>> interfaces) {
+        return interfaces.isEmpty() && !beanClass.isAnnotationPresent(Remote.class);
     }
 
     @Override
