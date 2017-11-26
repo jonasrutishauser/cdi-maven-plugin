@@ -78,7 +78,7 @@ import com.github.jonasrutishauser.cdi.maven.plugin.war.WarUtil;
 <span class="fc" id="L78">            bootstrap.deployBeans();</span>
 <span class="fc" id="L79">            bootstrap.validateBeans();</span>
 <span class="fc" id="L80">            bootstrap.endInitialization();</span>
-<span class="fc" id="L81">        } catch (Throwable e) {</span>
+<span class="fc" id="L81">        } catch (Exception e) {</span>
 <span class="fc" id="L82">            LoggerFactory.getLogger(getClass()).error(e.getMessage());</span>
 <span class="fc" id="L83">            throw new MojoFailureException(&quot;CDI error found: &quot; + e.getMessage(), e);</span>
         } finally {
