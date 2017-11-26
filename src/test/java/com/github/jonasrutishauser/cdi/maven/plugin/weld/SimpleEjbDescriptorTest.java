@@ -1,5 +1,22 @@
 package com.github.jonasrutishauser.cdi.maven.plugin.weld;
 
+/*
+ * Copyright (C) 2017 Jonas Rutishauser
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation version 3 of the License.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.
+ * If not, see <http://www.gnu.org/licenses/lgpl-3.0.txt>.
+ */
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -58,6 +75,7 @@ public class SimpleEjbDescriptorTest {
         assertThat(testee.getLocalBusinessInterfaces(), is(empty()));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void collectLocalInterfaces_localAnnotationWithInterfaces() {
         SimpleEjbDescriptor<?> testee = new SimpleEjbDescriptor<>(LocalInterfacesBean.class);
