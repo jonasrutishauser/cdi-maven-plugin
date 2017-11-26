@@ -78,7 +78,7 @@ public class ValidateMojo extends AbstractMojo {
             bootstrap.deployBeans();
             bootstrap.validateBeans();
             bootstrap.endInitialization();
-        } catch (Throwable e) {
+        } catch (Exception e) {
             LoggerFactory.getLogger(getClass()).error(e.getMessage());
             throw new MojoFailureException("CDI error found: " + e.getMessage(), e);
         } finally {

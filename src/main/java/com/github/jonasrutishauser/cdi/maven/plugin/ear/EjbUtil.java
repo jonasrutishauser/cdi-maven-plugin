@@ -87,7 +87,8 @@ public class EjbUtil {
             addEjbsFromDescriptor(descriptors, resourceLoader,
                     "jar:" + new File(archivePath).toURI() + "!/META-INF/ejb-jar.xml");
         }
-        WeldBeanDeploymentArchive weldBeanDeploymentArchive = new WeldBeanDeploymentArchive(archive.getId(), archive.getBeanClasses(), archive.getBeansXml()) {
+        WeldBeanDeploymentArchive weldBeanDeploymentArchive = new WeldBeanDeploymentArchive(archive.getId(),
+                archive.getBeanClasses(), archive.getBeansXml()) {
             @Override
             public Collection<EjbDescriptor<?>> getEjbs() {
                 return descriptors.values();
@@ -106,10 +107,14 @@ public class EjbUtil {
             NodeList beans = (NodeList) xPath.evaluate("//enterprise-beans/*", doc, XPathConstants.NODESET);
             for (int i = 0; i < beans.getLength(); i++) {
                 Element bean = (Element) beans.item(i);
-                String name = getValue(bean, "ejb-name").get();
+                String name = getValue(bean, "ejb-name").orElseThrow(
+                        () -> new IllegalArgumentException("required 'ejb-name' not found in deployment descriptor"));
                 SimpleEjbDescriptor<?> descriptor = (SimpleEjbDescriptor<?>) ejbs.computeIfAbsent(name,
                         beanName -> new SimpleEjbDescriptor<>(
-                                resourceLoader.classForName(getValue(bean, "ejb-class").get()), beanName));
+                                resourceLoader.classForName(
+                                        getValue(bean, "ejb-class").orElseThrow(() -> new IllegalArgumentException(
+                                                "required 'ejb-class' not found in deployment descriptor"))),
+                                beanName));
                 boolean hasInterface = hasInterface(bean);
                 if (hasInterface) {
                     descriptor.getLocalBusinessInterfaces().clear();
