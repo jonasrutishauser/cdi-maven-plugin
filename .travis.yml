@@ -3,6 +3,7 @@ jdk:
 - oraclejdk8
 script: mvn -V -e clean verify
 after_success:
+- mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=jonasrutishauser-github -Dsonar.login=$SONAR_TOKEN -Dsonar.branch.name=${TRAVIS_PULL_REQUEST_SLUG}${TRAVIS_PULL_REQUEST_SLUG:+/}${TRAVIS_BRANCH}
 - mvn jacoco:report
 - bash <(curl -s https://codecov.io/bash) -c -F unittests
 - mvn jacoco:report-integration
