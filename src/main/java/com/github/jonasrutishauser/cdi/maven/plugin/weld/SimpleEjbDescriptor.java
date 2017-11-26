@@ -54,9 +54,9 @@ public class SimpleEjbDescriptor<T> implements EjbDescriptor<T> {
     private void collectLocalInterfaces() {
         Local localAnnotation = beanClass.getAnnotation(Local.class);
         List<Class<?>> interfaces = Arrays.stream(beanClass.getInterfaces())
-                .filter(Predicate.<Class<?>>isEqual(Serializable.class)
-                        .or(Predicate.<Class<?>>isEqual(Externalizable.class)
-                                .or(type -> type.getName().startsWith("javax.ejb.")).negate()))
+                .filter(Predicate.<Class<?>>isEqual(Serializable.class).negate()
+                        .and(Predicate.<Class<?>>isEqual(Externalizable.class).negate()
+                                .and(type -> !type.getName().startsWith("javax.ejb."))))
                 .collect(Collectors.toList());
         if (localAnnotation != null && localAnnotation.value().length > 0) {
             for (Class<?> type : localAnnotation.value()) {
