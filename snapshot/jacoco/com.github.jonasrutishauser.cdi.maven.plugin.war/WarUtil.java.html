@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import javax.enterprise.inject.spi.Extension;
 
@@ -40,6 +41,7 @@ import org.jboss.weld.bootstrap.spi.EEModuleDescriptor;
 import org.jboss.weld.bootstrap.spi.EEModuleDescriptor.ModuleType;
 import org.jboss.weld.bootstrap.spi.Metadata;
 import org.jboss.weld.bootstrap.spi.helpers.EEModuleDescriptorImpl;
+import org.jboss.weld.bootstrap.spi.helpers.MetadataImpl;
 import org.jboss.weld.environment.deployment.WeldBeanDeploymentArchive;
 import org.jboss.weld.environment.deployment.discovery.DiscoveryStrategy;
 import org.jboss.weld.environment.deployment.discovery.DiscoveryStrategyFactory;
@@ -50,85 +52,88 @@ import com.github.jonasrutishauser.cdi.maven.plugin.ArchiveUtil;
 import com.github.jonasrutishauser.cdi.maven.plugin.ear.EjbUtil;
 import com.github.jonasrutishauser.cdi.maven.plugin.weld.WarBeanArchiveScanner;
 import com.github.jonasrutishauser.cdi.maven.plugin.weld.WarDeployment;
+import com.github.jonasrutishauser.cdi.maven.plugin.weld.bootstrap.PredefinedBeansExtension;
 
 public class WarUtil implements ArchiveUtil {
 
     private final ArchiverManager archiverManager;
-<span class="nc" id="L57">    private final EjbUtil ejbUtil = new EjbUtil();</span>
+<span class="nc" id="L60">    private final EjbUtil ejbUtil = new EjbUtil();</span>
 
     private File war;
     private URLClassLoader warClassloader;
 
-<span class="nc" id="L62">    public WarUtil(ArchiverManager archiverManager) {</span>
-<span class="nc" id="L63">        this.archiverManager = archiverManager;</span>
-<span class="nc" id="L64">    }</span>
+<span class="nc" id="L65">    public WarUtil(ArchiverManager archiverManager) {</span>
+<span class="nc" id="L66">        this.archiverManager = archiverManager;</span>
+<span class="nc" id="L67">    }</span>
 
     public static WarUtil create(ArchiverManager archiverManager, File workDirectory, File warFile,
             ClassLoader earClassloader) throws MalformedURLException {
-<span class="nc" id="L68">        WarUtil util = new WarUtil(archiverManager);</span>
-<span class="nc" id="L69">        util.init(workDirectory, warFile, earClassloader);</span>
-<span class="nc" id="L70">        return util;</span>
+<span class="nc" id="L71">        WarUtil util = new WarUtil(archiverManager);</span>
+<span class="nc" id="L72">        util.init(workDirectory, warFile, earClassloader);</span>
+<span class="nc" id="L73">        return util;</span>
     }
 
     @Override
     public void init(File workDirectory, File warFile) throws MalformedURLException {
-<span class="nc" id="L75">        init(workDirectory, warFile, getClass().getClassLoader());</span>
-<span class="nc" id="L76">    }</span>
+<span class="nc" id="L78">        init(workDirectory, warFile, getClass().getClassLoader());</span>
+<span class="nc" id="L79">    }</span>
 
     private void init(File workDirectory, File warFile, ClassLoader parentClassloader) throws MalformedURLException {
         UnArchiver unArchiver;
         try {
-<span class="nc" id="L81">            unArchiver = archiverManager.getUnArchiver(warFile);</span>
-<span class="nc" id="L82">        } catch (NoSuchArchiverException e) {</span>
-<span class="nc" id="L83">            throw new IllegalStateException(e);</span>
-<span class="nc" id="L84">        }</span>
-<span class="nc" id="L85">        File extractedDir = new File(workDirectory, warFile.getName());</span>
-<span class="nc" id="L86">        this.war = extractedDir;</span>
-<span class="nc" id="L87">        extractedDir.mkdirs();</span>
-<span class="nc" id="L88">        unArchiver.setDestDirectory(extractedDir);</span>
-<span class="nc" id="L89">        unArchiver.setSourceFile(warFile);</span>
-<span class="nc" id="L90">        unArchiver.extract();</span>
-<span class="nc" id="L91">        File libDir = new File(extractedDir, &quot;WEB-INF/lib&quot;);</span>
-<span class="nc" id="L92">        File[] jars = libDir.listFiles(file -&gt; file.getName().endsWith(&quot;.jar&quot;));</span>
-<span class="nc" id="L93">        List&lt;URL&gt; urls = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L94">        urls.add(new File(extractedDir, WarBeanArchiveScanner.CLASSES).toURI().toURL());</span>
-<span class="nc bnc" id="L95" title="All 2 branches missed.">        if (jars != null) {</span>
-<span class="nc bnc" id="L96" title="All 2 branches missed.">            for (File jar : jars) {</span>
-<span class="nc" id="L97">                urls.add(jar.toURI().toURL());</span>
+<span class="nc" id="L84">            unArchiver = archiverManager.getUnArchiver(warFile);</span>
+<span class="nc" id="L85">        } catch (NoSuchArchiverException e) {</span>
+<span class="nc" id="L86">            throw new IllegalStateException(e);</span>
+<span class="nc" id="L87">        }</span>
+<span class="nc" id="L88">        File extractedDir = new File(workDirectory, warFile.getName());</span>
+<span class="nc" id="L89">        this.war = extractedDir;</span>
+<span class="nc" id="L90">        extractedDir.mkdirs();</span>
+<span class="nc" id="L91">        unArchiver.setDestDirectory(extractedDir);</span>
+<span class="nc" id="L92">        unArchiver.setSourceFile(warFile);</span>
+<span class="nc" id="L93">        unArchiver.extract();</span>
+<span class="nc" id="L94">        File libDir = new File(extractedDir, &quot;WEB-INF/lib&quot;);</span>
+<span class="nc" id="L95">        File[] jars = libDir.listFiles(file -&gt; file.getName().endsWith(&quot;.jar&quot;));</span>
+<span class="nc" id="L96">        List&lt;URL&gt; urls = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L97">        urls.add(new File(extractedDir, WarBeanArchiveScanner.CLASSES).toURI().toURL());</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">        if (jars != null) {</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">            for (File jar : jars) {</span>
+<span class="nc" id="L100">                urls.add(jar.toURI().toURL());</span>
             }
         }
-<span class="nc" id="L100">        warClassloader = new URLClassLoader(urls.toArray(new URL[urls.size()]), parentClassloader);</span>
-<span class="nc" id="L101">    }</span>
+<span class="nc" id="L103">        warClassloader = new URLClassLoader(urls.toArray(new URL[urls.size()]), parentClassloader);</span>
+<span class="nc" id="L104">    }</span>
 
     @Override
     public Deployment createDeployment(CDI11Bootstrap bootstrap) {
-<span class="nc" id="L105">        Iterable&lt;Metadata&lt;Extension&gt;&gt; extensions = bootstrap.loadExtensions(warClassloader);</span>
-<span class="nc" id="L106">        TypeDiscoveryConfiguration typeDiscoveryConfiguration = bootstrap.startExtensions(extensions);</span>
-<span class="nc" id="L107">        Set&lt;WeldBeanDeploymentArchive&gt; archives = createArchives(bootstrap,</span>
-<span class="nc" id="L108">                typeDiscoveryConfiguration.getKnownBeanDefiningAnnotations());</span>
-<span class="nc" id="L109">        ResourceLoader resourceLoader = archives.iterator().next().getServices().get(ResourceLoader.class);</span>
-<span class="nc" id="L110">        return new WarDeployment(resourceLoader, bootstrap, archives, extensions);</span>
+<span class="nc" id="L108">        Set&lt;Metadata&lt;Extension&gt;&gt; extensions = StreamSupport</span>
+<span class="nc" id="L109">                .stream(bootstrap.loadExtensions(warClassloader).spliterator(), false).collect(Collectors.toSet());</span>
+<span class="nc" id="L110">        extensions.add(MetadataImpl.from(new PredefinedBeansExtension()));</span>
+<span class="nc" id="L111">        TypeDiscoveryConfiguration typeDiscoveryConfiguration = bootstrap.startExtensions(extensions);</span>
+<span class="nc" id="L112">        Set&lt;WeldBeanDeploymentArchive&gt; archives = createArchives(bootstrap,</span>
+<span class="nc" id="L113">                typeDiscoveryConfiguration.getKnownBeanDefiningAnnotations());</span>
+<span class="nc" id="L114">        ResourceLoader resourceLoader = archives.iterator().next().getServices().get(ResourceLoader.class);</span>
+<span class="nc" id="L115">        return new WarDeployment(resourceLoader, bootstrap, archives, extensions);</span>
     }
 
     public ClassLoader getClassLoader() {
-<span class="nc" id="L114">        return warClassloader;</span>
+<span class="nc" id="L119">        return warClassloader;</span>
     }
 
     public Set&lt;WeldBeanDeploymentArchive&gt; createArchives(CDI11Bootstrap bootstrap,
             Set&lt;Class&lt;? extends Annotation&gt;&gt; beanDefiningAnnotations) {
-<span class="nc" id="L119">        Set&lt;Class&lt;? extends Annotation&gt;&gt; annotations = new HashSet&lt;&gt;(beanDefiningAnnotations);</span>
-<span class="nc" id="L120">        ejbUtil.addBeanDefiningAnnotations(annotations);</span>
-<span class="nc" id="L121">        DiscoveryStrategy strategy = DiscoveryStrategyFactory.create(new ClassLoaderResourceLoader(warClassloader),</span>
+<span class="nc" id="L124">        Set&lt;Class&lt;? extends Annotation&gt;&gt; annotations = new HashSet&lt;&gt;(beanDefiningAnnotations);</span>
+<span class="nc" id="L125">        ejbUtil.addBeanDefiningAnnotations(annotations);</span>
+<span class="nc" id="L126">        DiscoveryStrategy strategy = DiscoveryStrategyFactory.create(new ClassLoaderResourceLoader(warClassloader),</span>
                 bootstrap, annotations, false);
-<span class="nc" id="L123">        strategy.setScanner(new WarBeanArchiveScanner(bootstrap, war, warClassloader.getURLs()));</span>
-<span class="nc" id="L124">        return strategy.performDiscovery().stream().map(ejbUtil::addEjbDescriptors).peek(this::addServices)</span>
-<span class="nc" id="L125">                .collect(Collectors.toSet());</span>
+<span class="nc" id="L128">        strategy.setScanner(new WarBeanArchiveScanner(bootstrap, war, warClassloader.getURLs()));</span>
+<span class="nc" id="L129">        return strategy.performDiscovery().stream().map(ejbUtil::addEjbDescriptors).peek(this::addServices)</span>
+<span class="nc" id="L130">                .collect(Collectors.toSet());</span>
     }
 
     private void addServices(WeldBeanDeploymentArchive archive) {
-<span class="nc" id="L129">        archive.getServices().add(EEModuleDescriptor.class,</span>
-<span class="nc" id="L130">                new EEModuleDescriptorImpl(archive.getId(), ModuleType.WEB));</span>
-<span class="nc" id="L131">    }</span>
+<span class="nc" id="L134">        archive.getServices().add(EEModuleDescriptor.class,</span>
+<span class="nc" id="L135">                new EEModuleDescriptorImpl(archive.getId(), ModuleType.WEB));</span>
+<span class="nc" id="L136">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
