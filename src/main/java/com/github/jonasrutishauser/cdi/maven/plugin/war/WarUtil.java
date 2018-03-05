@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import javax.enterprise.inject.spi.Extension;
 
@@ -40,6 +41,7 @@ import org.jboss.weld.bootstrap.spi.EEModuleDescriptor;
 import org.jboss.weld.bootstrap.spi.EEModuleDescriptor.ModuleType;
 import org.jboss.weld.bootstrap.spi.Metadata;
 import org.jboss.weld.bootstrap.spi.helpers.EEModuleDescriptorImpl;
+import org.jboss.weld.bootstrap.spi.helpers.MetadataImpl;
 import org.jboss.weld.environment.deployment.WeldBeanDeploymentArchive;
 import org.jboss.weld.environment.deployment.discovery.DiscoveryStrategy;
 import org.jboss.weld.environment.deployment.discovery.DiscoveryStrategyFactory;
@@ -50,6 +52,7 @@ import com.github.jonasrutishauser.cdi.maven.plugin.ArchiveUtil;
 import com.github.jonasrutishauser.cdi.maven.plugin.ear.EjbUtil;
 import com.github.jonasrutishauser.cdi.maven.plugin.weld.WarBeanArchiveScanner;
 import com.github.jonasrutishauser.cdi.maven.plugin.weld.WarDeployment;
+import com.github.jonasrutishauser.cdi.maven.plugin.weld.bootstrap.PredefinedBeansExtension;
 
 public class WarUtil implements ArchiveUtil {
 
@@ -102,7 +105,9 @@ public class WarUtil implements ArchiveUtil {
 
     @Override
     public Deployment createDeployment(CDI11Bootstrap bootstrap) {
-        Iterable<Metadata<Extension>> extensions = bootstrap.loadExtensions(warClassloader);
+        Set<Metadata<Extension>> extensions = StreamSupport
+                .stream(bootstrap.loadExtensions(warClassloader).spliterator(), false).collect(Collectors.toSet());
+        extensions.add(MetadataImpl.from(new PredefinedBeansExtension()));
         TypeDiscoveryConfiguration typeDiscoveryConfiguration = bootstrap.startExtensions(extensions);
         Set<WeldBeanDeploymentArchive> archives = createArchives(bootstrap,
                 typeDiscoveryConfiguration.getKnownBeanDefiningAnnotations());

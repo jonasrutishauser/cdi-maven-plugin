@@ -52,6 +52,7 @@ import org.jboss.weld.bootstrap.spi.EEModuleDescriptor;
 import org.jboss.weld.bootstrap.spi.EEModuleDescriptor.ModuleType;
 import org.jboss.weld.bootstrap.spi.Metadata;
 import org.jboss.weld.bootstrap.spi.helpers.EEModuleDescriptorImpl;
+import org.jboss.weld.bootstrap.spi.helpers.MetadataImpl;
 import org.jboss.weld.environment.deployment.WeldBeanDeploymentArchive;
 import org.jboss.weld.environment.deployment.discovery.DiscoveryStrategy;
 import org.jboss.weld.environment.deployment.discovery.DiscoveryStrategyFactory;
@@ -67,6 +68,7 @@ import com.github.jonasrutishauser.cdi.maven.plugin.ArchiveUtil;
 import com.github.jonasrutishauser.cdi.maven.plugin.war.WarUtil;
 import com.github.jonasrutishauser.cdi.maven.plugin.weld.EarDeployment;
 import com.github.jonasrutishauser.cdi.maven.plugin.weld.JarsBeanArchiveScanner;
+import com.github.jonasrutishauser.cdi.maven.plugin.weld.bootstrap.PredefinedBeansExtension;
 
 public class EarUtil implements ArchiveUtil {
 
@@ -86,6 +88,7 @@ public class EarUtil implements ArchiveUtil {
     public Deployment createDeployment(CDI11Bootstrap bootstrap) {
         ResourceLoader resourceLoader = new ClassLoaderResourceLoader(earClassloader);
         Set<Metadata<Extension>> extensions = getExtensions(bootstrap);
+        extensions.add(MetadataImpl.from(new PredefinedBeansExtension()));
         TypeDiscoveryConfiguration typeDiscoveryConfiguration = bootstrap.startExtensions(extensions);
         return new EarDeployment(resourceLoader, bootstrap, getBeanDeploymentArchives(resourceLoader, bootstrap,
                 typeDiscoveryConfiguration.getKnownBeanDefiningAnnotations()), extensions);
