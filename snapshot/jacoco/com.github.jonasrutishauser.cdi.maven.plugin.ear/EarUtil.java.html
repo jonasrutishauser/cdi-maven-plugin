@@ -34,6 +34,8 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import javax.enterprise.inject.spi.Extension;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -73,126 +75,127 @@ import com.github.jonasrutishauser.cdi.maven.plugin.weld.bootstrap.PredefinedBea
 public class EarUtil implements ArchiveUtil {
 
     private final ArchiverManager archiverManager;
-<span class="nc" id="L76">    private final EjbUtil ejbUtil = new EjbUtil();</span>
+<span class="nc" id="L78">    private final EjbUtil ejbUtil = new EjbUtil();</span>
 
-<span class="nc" id="L78">    private final Set&lt;File&gt; ejbs = new HashSet&lt;&gt;();</span>
-<span class="nc" id="L79">    private final Set&lt;File&gt; libraries = new HashSet&lt;&gt;();</span>
-<span class="nc" id="L80">    private final Set&lt;WarUtil&gt; wars = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L80">    private final Set&lt;File&gt; ejbs = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L81">    private final Set&lt;File&gt; libraries = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L82">    private final Set&lt;WarUtil&gt; wars = new HashSet&lt;&gt;();</span>
 
     private ClassLoader earClassloader;
-    
-<span class="nc" id="L84">    public EarUtil(ArchiverManager archiverManager) {</span>
-<span class="nc" id="L85">        this.archiverManager = archiverManager;</span>
-<span class="nc" id="L86">    }</span>
+
+<span class="nc" id="L86">    public EarUtil(ArchiverManager archiverManager) {</span>
+<span class="nc" id="L87">        this.archiverManager = archiverManager;</span>
+<span class="nc" id="L88">    }</span>
 
     public Deployment createDeployment(CDI11Bootstrap bootstrap) {
-<span class="nc" id="L89">        ResourceLoader resourceLoader = new ClassLoaderResourceLoader(earClassloader);</span>
-<span class="nc" id="L90">        Set&lt;Metadata&lt;Extension&gt;&gt; extensions = getExtensions(bootstrap);</span>
-<span class="nc" id="L91">        extensions.add(MetadataImpl.from(new PredefinedBeansExtension()));</span>
-<span class="nc" id="L92">        TypeDiscoveryConfiguration typeDiscoveryConfiguration = bootstrap.startExtensions(extensions);</span>
-<span class="nc" id="L93">        return new EarDeployment(resourceLoader, bootstrap, getBeanDeploymentArchives(resourceLoader, bootstrap,</span>
-<span class="nc" id="L94">                typeDiscoveryConfiguration.getKnownBeanDefiningAnnotations()), extensions);</span>
+<span class="nc" id="L91">        ResourceLoader resourceLoader = new ClassLoaderResourceLoader(earClassloader);</span>
+<span class="nc" id="L92">        Set&lt;Metadata&lt;Extension&gt;&gt; extensions = getExtensions(bootstrap);</span>
+<span class="nc" id="L93">        extensions.add(MetadataImpl.from(new PredefinedBeansExtension(Validator.class, ValidatorFactory.class)));</span>
+<span class="nc" id="L94">        TypeDiscoveryConfiguration typeDiscoveryConfiguration = bootstrap.startExtensions(extensions);</span>
+<span class="nc" id="L95">        return new EarDeployment(resourceLoader, bootstrap, getBeanDeploymentArchives(resourceLoader, bootstrap,</span>
+<span class="nc" id="L96">                typeDiscoveryConfiguration.getKnownBeanDefiningAnnotations()), extensions);</span>
     }
 
     private Set&lt;WeldBeanDeploymentArchive&gt; getBeanDeploymentArchives(ResourceLoader resourceLoader,
             CDI11Bootstrap bootstrap, Set&lt;Class&lt;? extends Annotation&gt;&gt; beanDefiningAnnotations) {
-<span class="nc" id="L99">        return Stream</span>
-<span class="nc" id="L100">                .of(getEjbArchives(resourceLoader, bootstrap, beanDefiningAnnotations),</span>
-<span class="nc" id="L101">                        getLibraryArchives(resourceLoader, bootstrap, beanDefiningAnnotations),</span>
-<span class="nc" id="L102">                        getWarArchives(bootstrap, beanDefiningAnnotations))</span>
-<span class="nc" id="L103">                .flatMap(Set::stream).collect(Collectors.toCollection(HashSet::new));</span>
+<span class="nc" id="L101">        return Stream</span>
+<span class="nc" id="L102">                .of(getEjbArchives(resourceLoader, bootstrap, beanDefiningAnnotations),</span>
+<span class="nc" id="L103">                        getLibraryArchives(resourceLoader, bootstrap, beanDefiningAnnotations),</span>
+<span class="nc" id="L104">                        getWarArchives(bootstrap, beanDefiningAnnotations))</span>
+<span class="nc" id="L105">                .flatMap(Set::stream).collect(Collectors.toCollection(HashSet::new));</span>
     }
 
     private Set&lt;WeldBeanDeploymentArchive&gt; getWarArchives(CDI11Bootstrap bootstrap,
             Set&lt;Class&lt;? extends Annotation&gt;&gt; beanDefiningAnnotations) {
-<span class="nc" id="L108">        return wars.stream().map(util -&gt; util.createArchives(bootstrap, beanDefiningAnnotations)).flatMap(Set::stream)</span>
-<span class="nc" id="L109">                .collect(Collectors.toSet());</span>
+<span class="nc" id="L110">        return wars.stream().map(util -&gt; util.createArchives(bootstrap, beanDefiningAnnotations)).flatMap(Set::stream)</span>
+<span class="nc" id="L111">                .collect(Collectors.toSet());</span>
     }
 
     private Set&lt;WeldBeanDeploymentArchive&gt; getLibraryArchives(ResourceLoader resourceLoader, CDI11Bootstrap bootstrap,
             Set&lt;Class&lt;? extends Annotation&gt;&gt; beanDefiningAnnotations) {
-<span class="nc" id="L114">        DiscoveryStrategy strategy = DiscoveryStrategyFactory.create(resourceLoader, bootstrap, beanDefiningAnnotations,</span>
+<span class="nc" id="L116">        DiscoveryStrategy strategy = DiscoveryStrategyFactory.create(resourceLoader, bootstrap, beanDefiningAnnotations,</span>
                 false);
-<span class="nc" id="L116">        strategy.setScanner(new JarsBeanArchiveScanner(bootstrap, libraries));</span>
-<span class="nc" id="L117">        return strategy.performDiscovery().stream().peek(archive -&gt; archive.getServices().add(EEModuleDescriptor.class,</span>
-<span class="nc" id="L118">                new EEModuleDescriptorImpl(archive.getId(), ModuleType.EAR))).collect(Collectors.toSet());</span>
+<span class="nc" id="L118">        strategy.setScanner(new JarsBeanArchiveScanner(bootstrap, libraries));</span>
+<span class="nc" id="L119">        return strategy.performDiscovery().stream().peek(archive -&gt; archive.getServices().add(EEModuleDescriptor.class,</span>
+<span class="nc" id="L120">                new EEModuleDescriptorImpl(archive.getId(), ModuleType.EAR))).collect(Collectors.toSet());</span>
     }
 
     private Set&lt;WeldBeanDeploymentArchive&gt; getEjbArchives(ResourceLoader resourceLoader, CDI11Bootstrap bootstrap,
             Set&lt;Class&lt;? extends Annotation&gt;&gt; beanDefiningAnnotations) {
-<span class="nc" id="L123">        Set&lt;Class&lt;? extends Annotation&gt;&gt; annotations = new HashSet&lt;&gt;(beanDefiningAnnotations);</span>
-<span class="nc" id="L124">        ejbUtil.addBeanDefiningAnnotations(annotations);</span>
-<span class="nc" id="L125">        DiscoveryStrategy strategy = DiscoveryStrategyFactory.create(resourceLoader, bootstrap, annotations, false);</span>
-<span class="nc" id="L126">        strategy.setScanner(new JarsBeanArchiveScanner(bootstrap, ejbs));</span>
-<span class="nc" id="L127">        return strategy.performDiscovery().stream().map(ejbUtil::addEjbDescriptors).collect(Collectors.toSet());</span>
+<span class="nc" id="L125">        Set&lt;Class&lt;? extends Annotation&gt;&gt; annotations = new HashSet&lt;&gt;(beanDefiningAnnotations);</span>
+<span class="nc" id="L126">        ejbUtil.addBeanDefiningAnnotations(annotations);</span>
+<span class="nc" id="L127">        DiscoveryStrategy strategy = DiscoveryStrategyFactory.create(resourceLoader, bootstrap, annotations, false);</span>
+<span class="nc" id="L128">        strategy.setScanner(new JarsBeanArchiveScanner(bootstrap, ejbs));</span>
+<span class="nc" id="L129">        return strategy.performDiscovery().stream().map(ejbUtil::addEjbDescriptors).collect(Collectors.toSet());</span>
     }
 
     private Set&lt;Metadata&lt;Extension&gt;&gt; getExtensions(CDI11Bootstrap bootstrap) {
-<span class="nc" id="L131">        return Stream</span>
-<span class="nc" id="L132">                .of(Collections.singleton(earClassloader),</span>
-<span class="nc" id="L133">                        wars.stream().map(WarUtil::getClassLoader).collect(Collectors.toSet()))</span>
-<span class="nc" id="L134">                .flatMap(Collection::stream).flatMap(classloader -&gt; StreamSupport</span>
-<span class="nc" id="L135">                        .stream(bootstrap.loadExtensions(classloader).spliterator(), false))</span>
-<span class="nc" id="L136">                .collect(Collectors.toSet());</span>
+<span class="nc" id="L133">        return Stream</span>
+<span class="nc" id="L134">                .of(Collections.singleton(earClassloader),</span>
+<span class="nc" id="L135">                        wars.stream().map(WarUtil::getClassLoader).collect(Collectors.toSet()))</span>
+<span class="nc" id="L136">                .flatMap(Collection::stream)</span>
+<span class="nc" id="L137">                .flatMap(</span>
+<span class="nc" id="L138">                        classloader -&gt; StreamSupport.stream(bootstrap.loadExtensions(classloader).spliterator(), false))</span>
+<span class="nc" id="L139">                .collect(Collectors.toSet());</span>
     }
 
     @Override
     public void init(File workDirectory, File earFile) throws MalformedURLException {
         UnArchiver unArchiver;
         try {
-<span class="nc" id="L143">            unArchiver = archiverManager.getUnArchiver(earFile);</span>
-<span class="nc" id="L144">        } catch (NoSuchArchiverException e) {</span>
-<span class="nc" id="L145">            throw new IllegalStateException(e);</span>
-<span class="nc" id="L146">        }</span>
-<span class="nc" id="L147">        File extractedDir = new File(workDirectory, earFile.getName());</span>
-<span class="nc" id="L148">        extractedDir.mkdirs();</span>
-<span class="nc" id="L149">        unArchiver.setDestDirectory(extractedDir);</span>
-<span class="nc" id="L150">        unArchiver.setSourceFile(earFile);</span>
-<span class="nc" id="L151">        unArchiver.extract();</span>
-<span class="nc" id="L152">        File libDir = new File(extractedDir, &quot;lib&quot;);</span>
-<span class="nc" id="L153">        Set&lt;File&gt; warFiles = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L146">            unArchiver = archiverManager.getUnArchiver(earFile);</span>
+<span class="nc" id="L147">        } catch (NoSuchArchiverException e) {</span>
+<span class="nc" id="L148">            throw new IllegalStateException(e);</span>
+<span class="nc" id="L149">        }</span>
+<span class="nc" id="L150">        File extractedDir = new File(workDirectory, earFile.getName());</span>
+<span class="nc" id="L151">        extractedDir.mkdirs();</span>
+<span class="nc" id="L152">        unArchiver.setDestDirectory(extractedDir);</span>
+<span class="nc" id="L153">        unArchiver.setSourceFile(earFile);</span>
+<span class="nc" id="L154">        unArchiver.extract();</span>
+<span class="nc" id="L155">        File libDir = new File(extractedDir, &quot;lib&quot;);</span>
+<span class="nc" id="L156">        Set&lt;File&gt; warFiles = new HashSet&lt;&gt;();</span>
         try {
-<span class="nc" id="L155">            DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();</span>
-<span class="nc" id="L156">            Document doc = documentBuilder.parse(new File(extractedDir, &quot;META-INF/application.xml&quot;));</span>
-<span class="nc" id="L157">            XPath xPath = XPathFactory.newInstance().newXPath();</span>
-<span class="nc" id="L158">            NodeList modules = (NodeList) xPath.evaluate(&quot;//module/*&quot;, doc, XPathConstants.NODESET);</span>
-<span class="nc bnc" id="L159" title="All 2 branches missed.">            for (int i = 0; i &lt; modules.getLength(); i++) {</span>
-<span class="nc" id="L160">                Element module = (Element) modules.item(i);</span>
-<span class="nc bnc" id="L161" title="All 2 branches missed.">                if (&quot;ejb&quot;.equals(module.getNodeName())) {</span>
-<span class="nc" id="L162">                    ejbs.add(new File(extractedDir, module.getTextContent()));</span>
-<span class="nc bnc" id="L163" title="All 2 branches missed.">                } else if (&quot;web&quot;.equals(module.getNodeName())) {</span>
-<span class="nc" id="L164">                    File warFile = new File(extractedDir,</span>
-<span class="nc" id="L165">                            (String) xPath.evaluate(&quot;web-uri/text()&quot;, module, XPathConstants.STRING));</span>
-<span class="nc" id="L166">                    warFiles.add(warFile);</span>
-<span class="nc" id="L167">                } else {</span>
-<span class="nc" id="L168">                    libraries.add(new File(extractedDir, module.getTextContent()));</span>
+<span class="nc" id="L158">            DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();</span>
+<span class="nc" id="L159">            Document doc = documentBuilder.parse(new File(extractedDir, &quot;META-INF/application.xml&quot;));</span>
+<span class="nc" id="L160">            XPath xPath = XPathFactory.newInstance().newXPath();</span>
+<span class="nc" id="L161">            NodeList modules = (NodeList) xPath.evaluate(&quot;//module/*&quot;, doc, XPathConstants.NODESET);</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">            for (int i = 0; i &lt; modules.getLength(); i++) {</span>
+<span class="nc" id="L163">                Element module = (Element) modules.item(i);</span>
+<span class="nc bnc" id="L164" title="All 2 branches missed.">                if (&quot;ejb&quot;.equals(module.getNodeName())) {</span>
+<span class="nc" id="L165">                    ejbs.add(new File(extractedDir, module.getTextContent()));</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">                } else if (&quot;web&quot;.equals(module.getNodeName())) {</span>
+<span class="nc" id="L167">                    File warFile = new File(extractedDir,</span>
+<span class="nc" id="L168">                            (String) xPath.evaluate(&quot;web-uri/text()&quot;, module, XPathConstants.STRING));</span>
+<span class="nc" id="L169">                    warFiles.add(warFile);</span>
+<span class="nc" id="L170">                } else {</span>
+<span class="nc" id="L171">                    libraries.add(new File(extractedDir, module.getTextContent()));</span>
                 }
             }
-<span class="nc" id="L171">            Element libraryDirectory = (Element) xPath.evaluate(&quot;//library-directory&quot;, doc, XPathConstants.NODE);</span>
-<span class="nc bnc" id="L172" title="All 2 branches missed.">            if (libraryDirectory != null) {</span>
-<span class="nc" id="L173">                libDir = new File(extractedDir, libraryDirectory.getTextContent());</span>
+<span class="nc" id="L174">            Element libraryDirectory = (Element) xPath.evaluate(&quot;//library-directory&quot;, doc, XPathConstants.NODE);</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">            if (libraryDirectory != null) {</span>
+<span class="nc" id="L176">                libDir = new File(extractedDir, libraryDirectory.getTextContent());</span>
             }
-<span class="nc" id="L175">        } catch (ParserConfigurationException | SAXException | XPathException | IOException e) {</span>
-<span class="nc" id="L176">            LoggerFactory.getLogger(getClass()).warn(&quot;failed to read deployment descriptor of ear&quot;, e);</span>
-<span class="nc" id="L177">        }</span>
-<span class="nc" id="L178">        File[] jars = libDir.listFiles(file -&gt; file.getName().endsWith(&quot;.jar&quot;));</span>
-<span class="nc bnc" id="L179" title="All 2 branches missed.">        if (jars != null) {</span>
-<span class="nc bnc" id="L180" title="All 2 branches missed.">            for (File jar : jars) {</span>
-<span class="nc" id="L181">                libraries.add(jar);</span>
+<span class="nc" id="L178">        } catch (ParserConfigurationException | SAXException | XPathException | IOException e) {</span>
+<span class="nc" id="L179">            LoggerFactory.getLogger(getClass()).warn(&quot;failed to read deployment descriptor of ear&quot;, e);</span>
+<span class="nc" id="L180">        }</span>
+<span class="nc" id="L181">        File[] jars = libDir.listFiles(file -&gt; file.getName().endsWith(&quot;.jar&quot;));</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">        if (jars != null) {</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">            for (File jar : jars) {</span>
+<span class="nc" id="L184">                libraries.add(jar);</span>
             }
         }
-<span class="nc" id="L184">        List&lt;URL&gt; urls = new ArrayList&lt;&gt;(ejbs.size() + libraries.size());</span>
-<span class="nc bnc" id="L185" title="All 2 branches missed.">        for (File ejb : ejbs) {</span>
-<span class="nc" id="L186">            urls.add(ejb.toURI().toURL());</span>
-<span class="nc" id="L187">        }</span>
-<span class="nc bnc" id="L188" title="All 2 branches missed.">        for (File library : libraries) {</span>
-<span class="nc" id="L189">            urls.add(library.toURI().toURL());</span>
+<span class="nc" id="L187">        List&lt;URL&gt; urls = new ArrayList&lt;&gt;(ejbs.size() + libraries.size());</span>
+<span class="nc bnc" id="L188" title="All 2 branches missed.">        for (File ejb : ejbs) {</span>
+<span class="nc" id="L189">            urls.add(ejb.toURI().toURL());</span>
 <span class="nc" id="L190">        }</span>
-<span class="nc" id="L191">        earClassloader = new URLClassLoader(urls.toArray(new URL[urls.size()]), getClass().getClassLoader());</span>
-<span class="nc bnc" id="L192" title="All 2 branches missed.">        for (File warFile : warFiles) {</span>
-<span class="nc" id="L193">            wars.add(WarUtil.create(archiverManager, workDirectory, warFile, earClassloader));</span>
-<span class="nc" id="L194">        }</span>
-<span class="nc" id="L195">    }</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">        for (File library : libraries) {</span>
+<span class="nc" id="L192">            urls.add(library.toURI().toURL());</span>
+<span class="nc" id="L193">        }</span>
+<span class="nc" id="L194">        earClassloader = new URLClassLoader(urls.toArray(new URL[urls.size()]), getClass().getClassLoader());</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">        for (File warFile : warFiles) {</span>
+<span class="nc" id="L196">            wars.add(WarUtil.create(archiverManager, workDirectory, warFile, earClassloader));</span>
+<span class="nc" id="L197">        }</span>
+<span class="nc" id="L198">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

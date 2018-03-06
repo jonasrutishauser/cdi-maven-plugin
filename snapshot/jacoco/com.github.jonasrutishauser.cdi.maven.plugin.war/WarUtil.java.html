@@ -30,6 +30,8 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import javax.enterprise.inject.spi.Extension;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 
 import org.codehaus.plexus.archiver.UnArchiver;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
@@ -57,83 +59,83 @@ import com.github.jonasrutishauser.cdi.maven.plugin.weld.bootstrap.PredefinedBea
 public class WarUtil implements ArchiveUtil {
 
     private final ArchiverManager archiverManager;
-<span class="nc" id="L60">    private final EjbUtil ejbUtil = new EjbUtil();</span>
+<span class="nc" id="L62">    private final EjbUtil ejbUtil = new EjbUtil();</span>
 
     private File war;
     private URLClassLoader warClassloader;
 
-<span class="nc" id="L65">    public WarUtil(ArchiverManager archiverManager) {</span>
-<span class="nc" id="L66">        this.archiverManager = archiverManager;</span>
-<span class="nc" id="L67">    }</span>
+<span class="nc" id="L67">    public WarUtil(ArchiverManager archiverManager) {</span>
+<span class="nc" id="L68">        this.archiverManager = archiverManager;</span>
+<span class="nc" id="L69">    }</span>
 
     public static WarUtil create(ArchiverManager archiverManager, File workDirectory, File warFile,
             ClassLoader earClassloader) throws MalformedURLException {
-<span class="nc" id="L71">        WarUtil util = new WarUtil(archiverManager);</span>
-<span class="nc" id="L72">        util.init(workDirectory, warFile, earClassloader);</span>
-<span class="nc" id="L73">        return util;</span>
+<span class="nc" id="L73">        WarUtil util = new WarUtil(archiverManager);</span>
+<span class="nc" id="L74">        util.init(workDirectory, warFile, earClassloader);</span>
+<span class="nc" id="L75">        return util;</span>
     }
 
     @Override
     public void init(File workDirectory, File warFile) throws MalformedURLException {
-<span class="nc" id="L78">        init(workDirectory, warFile, getClass().getClassLoader());</span>
-<span class="nc" id="L79">    }</span>
+<span class="nc" id="L80">        init(workDirectory, warFile, getClass().getClassLoader());</span>
+<span class="nc" id="L81">    }</span>
 
     private void init(File workDirectory, File warFile, ClassLoader parentClassloader) throws MalformedURLException {
         UnArchiver unArchiver;
         try {
-<span class="nc" id="L84">            unArchiver = archiverManager.getUnArchiver(warFile);</span>
-<span class="nc" id="L85">        } catch (NoSuchArchiverException e) {</span>
-<span class="nc" id="L86">            throw new IllegalStateException(e);</span>
-<span class="nc" id="L87">        }</span>
-<span class="nc" id="L88">        File extractedDir = new File(workDirectory, warFile.getName());</span>
-<span class="nc" id="L89">        this.war = extractedDir;</span>
-<span class="nc" id="L90">        extractedDir.mkdirs();</span>
-<span class="nc" id="L91">        unArchiver.setDestDirectory(extractedDir);</span>
-<span class="nc" id="L92">        unArchiver.setSourceFile(warFile);</span>
-<span class="nc" id="L93">        unArchiver.extract();</span>
-<span class="nc" id="L94">        File libDir = new File(extractedDir, &quot;WEB-INF/lib&quot;);</span>
-<span class="nc" id="L95">        File[] jars = libDir.listFiles(file -&gt; file.getName().endsWith(&quot;.jar&quot;));</span>
-<span class="nc" id="L96">        List&lt;URL&gt; urls = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L97">        urls.add(new File(extractedDir, WarBeanArchiveScanner.CLASSES).toURI().toURL());</span>
-<span class="nc bnc" id="L98" title="All 2 branches missed.">        if (jars != null) {</span>
-<span class="nc bnc" id="L99" title="All 2 branches missed.">            for (File jar : jars) {</span>
-<span class="nc" id="L100">                urls.add(jar.toURI().toURL());</span>
+<span class="nc" id="L86">            unArchiver = archiverManager.getUnArchiver(warFile);</span>
+<span class="nc" id="L87">        } catch (NoSuchArchiverException e) {</span>
+<span class="nc" id="L88">            throw new IllegalStateException(e);</span>
+<span class="nc" id="L89">        }</span>
+<span class="nc" id="L90">        File extractedDir = new File(workDirectory, warFile.getName());</span>
+<span class="nc" id="L91">        this.war = extractedDir;</span>
+<span class="nc" id="L92">        extractedDir.mkdirs();</span>
+<span class="nc" id="L93">        unArchiver.setDestDirectory(extractedDir);</span>
+<span class="nc" id="L94">        unArchiver.setSourceFile(warFile);</span>
+<span class="nc" id="L95">        unArchiver.extract();</span>
+<span class="nc" id="L96">        File libDir = new File(extractedDir, &quot;WEB-INF/lib&quot;);</span>
+<span class="nc" id="L97">        File[] jars = libDir.listFiles(file -&gt; file.getName().endsWith(&quot;.jar&quot;));</span>
+<span class="nc" id="L98">        List&lt;URL&gt; urls = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L99">        urls.add(new File(extractedDir, WarBeanArchiveScanner.CLASSES).toURI().toURL());</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">        if (jars != null) {</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">            for (File jar : jars) {</span>
+<span class="nc" id="L102">                urls.add(jar.toURI().toURL());</span>
             }
         }
-<span class="nc" id="L103">        warClassloader = new URLClassLoader(urls.toArray(new URL[urls.size()]), parentClassloader);</span>
-<span class="nc" id="L104">    }</span>
+<span class="nc" id="L105">        warClassloader = new URLClassLoader(urls.toArray(new URL[urls.size()]), parentClassloader);</span>
+<span class="nc" id="L106">    }</span>
 
     @Override
     public Deployment createDeployment(CDI11Bootstrap bootstrap) {
-<span class="nc" id="L108">        Set&lt;Metadata&lt;Extension&gt;&gt; extensions = StreamSupport</span>
-<span class="nc" id="L109">                .stream(bootstrap.loadExtensions(warClassloader).spliterator(), false).collect(Collectors.toSet());</span>
-<span class="nc" id="L110">        extensions.add(MetadataImpl.from(new PredefinedBeansExtension()));</span>
-<span class="nc" id="L111">        TypeDiscoveryConfiguration typeDiscoveryConfiguration = bootstrap.startExtensions(extensions);</span>
-<span class="nc" id="L112">        Set&lt;WeldBeanDeploymentArchive&gt; archives = createArchives(bootstrap,</span>
-<span class="nc" id="L113">                typeDiscoveryConfiguration.getKnownBeanDefiningAnnotations());</span>
-<span class="nc" id="L114">        ResourceLoader resourceLoader = archives.iterator().next().getServices().get(ResourceLoader.class);</span>
-<span class="nc" id="L115">        return new WarDeployment(resourceLoader, bootstrap, archives, extensions);</span>
+<span class="nc" id="L110">        Set&lt;Metadata&lt;Extension&gt;&gt; extensions = StreamSupport</span>
+<span class="nc" id="L111">                .stream(bootstrap.loadExtensions(warClassloader).spliterator(), false).collect(Collectors.toSet());</span>
+<span class="nc" id="L112">        extensions.add(MetadataImpl.from(new PredefinedBeansExtension(Validator.class, ValidatorFactory.class)));</span>
+<span class="nc" id="L113">        TypeDiscoveryConfiguration typeDiscoveryConfiguration = bootstrap.startExtensions(extensions);</span>
+<span class="nc" id="L114">        Set&lt;WeldBeanDeploymentArchive&gt; archives = createArchives(bootstrap,</span>
+<span class="nc" id="L115">                typeDiscoveryConfiguration.getKnownBeanDefiningAnnotations());</span>
+<span class="nc" id="L116">        ResourceLoader resourceLoader = archives.iterator().next().getServices().get(ResourceLoader.class);</span>
+<span class="nc" id="L117">        return new WarDeployment(resourceLoader, bootstrap, archives, extensions);</span>
     }
 
     public ClassLoader getClassLoader() {
-<span class="nc" id="L119">        return warClassloader;</span>
+<span class="nc" id="L121">        return warClassloader;</span>
     }
 
     public Set&lt;WeldBeanDeploymentArchive&gt; createArchives(CDI11Bootstrap bootstrap,
             Set&lt;Class&lt;? extends Annotation&gt;&gt; beanDefiningAnnotations) {
-<span class="nc" id="L124">        Set&lt;Class&lt;? extends Annotation&gt;&gt; annotations = new HashSet&lt;&gt;(beanDefiningAnnotations);</span>
-<span class="nc" id="L125">        ejbUtil.addBeanDefiningAnnotations(annotations);</span>
-<span class="nc" id="L126">        DiscoveryStrategy strategy = DiscoveryStrategyFactory.create(new ClassLoaderResourceLoader(warClassloader),</span>
+<span class="nc" id="L126">        Set&lt;Class&lt;? extends Annotation&gt;&gt; annotations = new HashSet&lt;&gt;(beanDefiningAnnotations);</span>
+<span class="nc" id="L127">        ejbUtil.addBeanDefiningAnnotations(annotations);</span>
+<span class="nc" id="L128">        DiscoveryStrategy strategy = DiscoveryStrategyFactory.create(new ClassLoaderResourceLoader(warClassloader),</span>
                 bootstrap, annotations, false);
-<span class="nc" id="L128">        strategy.setScanner(new WarBeanArchiveScanner(bootstrap, war, warClassloader.getURLs()));</span>
-<span class="nc" id="L129">        return strategy.performDiscovery().stream().map(ejbUtil::addEjbDescriptors).peek(this::addServices)</span>
-<span class="nc" id="L130">                .collect(Collectors.toSet());</span>
+<span class="nc" id="L130">        strategy.setScanner(new WarBeanArchiveScanner(bootstrap, war, warClassloader.getURLs()));</span>
+<span class="nc" id="L131">        return strategy.performDiscovery().stream().map(ejbUtil::addEjbDescriptors).peek(this::addServices)</span>
+<span class="nc" id="L132">                .collect(Collectors.toSet());</span>
     }
 
     private void addServices(WeldBeanDeploymentArchive archive) {
-<span class="nc" id="L134">        archive.getServices().add(EEModuleDescriptor.class,</span>
-<span class="nc" id="L135">                new EEModuleDescriptorImpl(archive.getId(), ModuleType.WEB));</span>
-<span class="nc" id="L136">    }</span>
+<span class="nc" id="L136">        archive.getServices().add(EEModuleDescriptor.class,</span>
+<span class="nc" id="L137">                new EEModuleDescriptorImpl(archive.getId(), ModuleType.WEB));</span>
+<span class="nc" id="L138">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
