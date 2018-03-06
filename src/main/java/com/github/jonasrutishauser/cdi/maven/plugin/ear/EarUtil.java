@@ -34,6 +34,8 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import javax.enterprise.inject.spi.Extension;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -80,7 +82,7 @@ public class EarUtil implements ArchiveUtil {
     private final Set<WarUtil> wars = new HashSet<>();
 
     private ClassLoader earClassloader;
-    
+
     public EarUtil(ArchiverManager archiverManager) {
         this.archiverManager = archiverManager;
     }
@@ -88,7 +90,7 @@ public class EarUtil implements ArchiveUtil {
     public Deployment createDeployment(CDI11Bootstrap bootstrap) {
         ResourceLoader resourceLoader = new ClassLoaderResourceLoader(earClassloader);
         Set<Metadata<Extension>> extensions = getExtensions(bootstrap);
-        extensions.add(MetadataImpl.from(new PredefinedBeansExtension()));
+        extensions.add(MetadataImpl.from(new PredefinedBeansExtension(Validator.class, ValidatorFactory.class)));
         TypeDiscoveryConfiguration typeDiscoveryConfiguration = bootstrap.startExtensions(extensions);
         return new EarDeployment(resourceLoader, bootstrap, getBeanDeploymentArchives(resourceLoader, bootstrap,
                 typeDiscoveryConfiguration.getKnownBeanDefiningAnnotations()), extensions);
@@ -131,8 +133,9 @@ public class EarUtil implements ArchiveUtil {
         return Stream
                 .of(Collections.singleton(earClassloader),
                         wars.stream().map(WarUtil::getClassLoader).collect(Collectors.toSet()))
-                .flatMap(Collection::stream).flatMap(classloader -> StreamSupport
-                        .stream(bootstrap.loadExtensions(classloader).spliterator(), false))
+                .flatMap(Collection::stream)
+                .flatMap(
+                        classloader -> StreamSupport.stream(bootstrap.loadExtensions(classloader).spliterator(), false))
                 .collect(Collectors.toSet());
     }
 

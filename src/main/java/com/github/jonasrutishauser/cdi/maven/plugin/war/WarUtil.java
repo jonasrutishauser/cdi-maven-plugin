@@ -30,6 +30,8 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import javax.enterprise.inject.spi.Extension;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 
 import org.codehaus.plexus.archiver.UnArchiver;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
@@ -107,7 +109,7 @@ public class WarUtil implements ArchiveUtil {
     public Deployment createDeployment(CDI11Bootstrap bootstrap) {
         Set<Metadata<Extension>> extensions = StreamSupport
                 .stream(bootstrap.loadExtensions(warClassloader).spliterator(), false).collect(Collectors.toSet());
-        extensions.add(MetadataImpl.from(new PredefinedBeansExtension()));
+        extensions.add(MetadataImpl.from(new PredefinedBeansExtension(Validator.class, ValidatorFactory.class)));
         TypeDiscoveryConfiguration typeDiscoveryConfiguration = bootstrap.startExtensions(extensions);
         Set<WeldBeanDeploymentArchive> archives = createArchives(bootstrap,
                 typeDiscoveryConfiguration.getKnownBeanDefiningAnnotations());
