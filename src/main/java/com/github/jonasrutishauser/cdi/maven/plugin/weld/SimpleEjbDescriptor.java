@@ -30,7 +30,11 @@ import java.util.stream.Collectors;
 
 import javax.ejb.Local;
 import javax.ejb.LocalBean;
+import javax.ejb.MessageDriven;
 import javax.ejb.Remote;
+import javax.ejb.Singleton;
+import javax.ejb.Stateful;
+import javax.ejb.Stateless;
 
 import org.jboss.weld.ejb.spi.BusinessInterfaceDescriptor;
 import org.jboss.weld.ejb.spi.EjbDescriptor;
@@ -103,27 +107,28 @@ public class SimpleEjbDescriptor<T> implements EjbDescriptor<T> {
 
     @Override
     public boolean isStateless() {
-        return true;
+        return beanClass.isAnnotationPresent(Stateless.class);
     }
 
     @Override
     public boolean isSingleton() {
-        return false;
+        return beanClass.isAnnotationPresent(Singleton.class);
     }
 
     @Override
     public boolean isStateful() {
-        return false;
+        return beanClass.isAnnotationPresent(Stateful.class);
     }
 
     @Override
     public boolean isMessageDriven() {
-        return false;
+        return beanClass.isAnnotationPresent(MessageDriven.class);
     }
 
     @Override
     public boolean isPassivationCapable() {
-        return false;
+        Stateful annotation = beanClass.getAnnotation(Stateful.class);
+        return annotation != null && annotation.passivationCapable();
     }
 
     public void addLocalInterface(Class<?> type) {
