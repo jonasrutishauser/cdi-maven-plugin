@@ -15,5 +15,5 @@ CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.weld,WarDeployment
 CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.weld,JarsBeanArchiveScanner,64,0,2,0,11,0,4,0,3,0
 CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.weld,WarBeanArchiveScanner,98,0,6,0,16,0,6,0,3,0
 CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.weld,EarDeployment,85,0,10,0,11,0,11,0,6,0
-CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.weld,SimpleEjbDescriptor,29,150,0,24,11,26,10,18,10,6
+CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.weld,SimpleEjbDescriptor,54,150,4,24,12,26,12,18,10,6
 CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin,ValidateMojo,105,0,4,0,23,0,4,0,2,0

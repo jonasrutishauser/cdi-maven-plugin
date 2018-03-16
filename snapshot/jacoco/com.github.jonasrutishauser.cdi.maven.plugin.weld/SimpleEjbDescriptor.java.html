@@ -30,7 +30,11 @@ import java.util.stream.Collectors;
 
 import javax.ejb.Local;
 import javax.ejb.LocalBean;
+import javax.ejb.MessageDriven;
 import javax.ejb.Remote;
+import javax.ejb.Singleton;
+import javax.ejb.Stateful;
+import javax.ejb.Stateless;
 
 import org.jboss.weld.ejb.spi.BusinessInterfaceDescriptor;
 import org.jboss.weld.ejb.spi.EjbDescriptor;
@@ -39,107 +43,108 @@ public class SimpleEjbDescriptor&lt;T&gt; implements EjbDescriptor&lt;T&gt; {
 
     private final Class&lt;T&gt; beanClass;
     private final String name;
-<span class="fc" id="L42">    private final Collection&lt;BusinessInterfaceDescriptor&lt;?&gt;&gt; localBusinessInterfaces = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L46">    private final Collection&lt;BusinessInterfaceDescriptor&lt;?&gt;&gt; localBusinessInterfaces = new HashSet&lt;&gt;();</span>
 
     public SimpleEjbDescriptor(Class&lt;T&gt; beanClass) {
-<span class="fc" id="L45">        this(beanClass, beanClass.getSimpleName());</span>
-<span class="fc" id="L46">    }</span>
+<span class="fc" id="L49">        this(beanClass, beanClass.getSimpleName());</span>
+<span class="fc" id="L50">    }</span>
 
-<span class="fc" id="L48">    public SimpleEjbDescriptor(Class&lt;T&gt; beanClass, String name) {</span>
-<span class="fc" id="L49">        this.beanClass = beanClass;</span>
-<span class="fc" id="L50">        this.name = name;</span>
-<span class="fc" id="L51">        collectLocalInterfaces();</span>
-<span class="fc" id="L52">    }</span>
+<span class="fc" id="L52">    public SimpleEjbDescriptor(Class&lt;T&gt; beanClass, String name) {</span>
+<span class="fc" id="L53">        this.beanClass = beanClass;</span>
+<span class="fc" id="L54">        this.name = name;</span>
+<span class="fc" id="L55">        collectLocalInterfaces();</span>
+<span class="fc" id="L56">    }</span>
 
     private void collectLocalInterfaces() {
-<span class="fc" id="L55">        Local localAnnotation = beanClass.getAnnotation(Local.class);</span>
-<span class="fc" id="L56">        List&lt;Class&lt;?&gt;&gt; interfaces = Arrays.stream(beanClass.getInterfaces())</span>
-<span class="fc" id="L57">                .filter(Predicate.&lt;Class&lt;?&gt;&gt;isEqual(Serializable.class).negate()</span>
-<span class="fc" id="L58">                        .and(Predicate.&lt;Class&lt;?&gt;&gt;isEqual(Externalizable.class).negate()</span>
-<span class="fc bfc" id="L59" title="All 2 branches covered.">                                .and(type -&gt; !type.getName().startsWith(&quot;javax.ejb.&quot;))))</span>
-<span class="fc" id="L60">                .collect(Collectors.toList());</span>
-<span class="fc bfc" id="L61" title="All 4 branches covered.">        if (localAnnotation != null &amp;&amp; localAnnotation.value().length &gt; 0) {</span>
-<span class="fc bfc" id="L62" title="All 2 branches covered.">            for (Class&lt;?&gt; type : localAnnotation.value()) {</span>
-<span class="fc" id="L63">                localBusinessInterfaces.add(new BusinessInterface&lt;&gt;(type));</span>
+<span class="fc" id="L59">        Local localAnnotation = beanClass.getAnnotation(Local.class);</span>
+<span class="fc" id="L60">        List&lt;Class&lt;?&gt;&gt; interfaces = Arrays.stream(beanClass.getInterfaces())</span>
+<span class="fc" id="L61">                .filter(Predicate.&lt;Class&lt;?&gt;&gt;isEqual(Serializable.class).negate()</span>
+<span class="fc" id="L62">                        .and(Predicate.&lt;Class&lt;?&gt;&gt;isEqual(Externalizable.class).negate()</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">                                .and(type -&gt; !type.getName().startsWith(&quot;javax.ejb.&quot;))))</span>
+<span class="fc" id="L64">                .collect(Collectors.toList());</span>
+<span class="fc bfc" id="L65" title="All 4 branches covered.">        if (localAnnotation != null &amp;&amp; localAnnotation.value().length &gt; 0) {</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">            for (Class&lt;?&gt; type : localAnnotation.value()) {</span>
+<span class="fc" id="L67">                localBusinessInterfaces.add(new BusinessInterface&lt;&gt;(type));</span>
             }
-<span class="fc bfc" id="L65" title="All 4 branches covered.">        } else if (interfaces.size() == 1</span>
-<span class="fc bfc" id="L66" title="All 2 branches covered.">                &amp;&amp; (localAnnotation != null || !interfaces.get(0).isAnnotationPresent(Remote.class))) {</span>
-<span class="fc" id="L67">            localBusinessInterfaces.add(new BusinessInterface&lt;&gt;(beanClass.getInterfaces()[0]));</span>
+<span class="fc bfc" id="L69" title="All 4 branches covered.">        } else if (interfaces.size() == 1</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">                &amp;&amp; (localAnnotation != null || !interfaces.get(0).isAnnotationPresent(Remote.class))) {</span>
+<span class="fc" id="L71">            localBusinessInterfaces.add(new BusinessInterface&lt;&gt;(beanClass.getInterfaces()[0]));</span>
         }
-<span class="fc bfc" id="L69" title="All 2 branches covered.">        if (beanClass.isAnnotationPresent(LocalBean.class)</span>
-<span class="fc bfc" id="L70" title="All 4 branches covered.">                || (localBusinessInterfaces.isEmpty() &amp;&amp; noRemoteInterfaceDefined(interfaces))) {</span>
-<span class="fc" id="L71">            localBusinessInterfaces.add(new BusinessInterface&lt;&gt;(beanClass));</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">        if (beanClass.isAnnotationPresent(LocalBean.class)</span>
+<span class="fc bfc" id="L74" title="All 4 branches covered.">                || (localBusinessInterfaces.isEmpty() &amp;&amp; noRemoteInterfaceDefined(interfaces))) {</span>
+<span class="fc" id="L75">            localBusinessInterfaces.add(new BusinessInterface&lt;&gt;(beanClass));</span>
         }
-<span class="fc" id="L73">    }</span>
+<span class="fc" id="L77">    }</span>
 
     private boolean noRemoteInterfaceDefined(List&lt;Class&lt;?&gt;&gt; interfaces) {
-<span class="fc bfc" id="L76" title="All 4 branches covered.">        return interfaces.isEmpty() &amp;&amp; !beanClass.isAnnotationPresent(Remote.class);</span>
+<span class="fc bfc" id="L80" title="All 4 branches covered.">        return interfaces.isEmpty() &amp;&amp; !beanClass.isAnnotationPresent(Remote.class);</span>
     }
 
     @Override
     public Class&lt;T&gt; getBeanClass() {
-<span class="nc" id="L81">        return beanClass;</span>
+<span class="nc" id="L85">        return beanClass;</span>
     }
 
     @Override
     public Collection&lt;BusinessInterfaceDescriptor&lt;?&gt;&gt; getLocalBusinessInterfaces() {
-<span class="fc" id="L86">        return localBusinessInterfaces;</span>
+<span class="fc" id="L90">        return localBusinessInterfaces;</span>
     }
 
     @Override
     public Collection&lt;BusinessInterfaceDescriptor&lt;?&gt;&gt; getRemoteBusinessInterfaces() {
-<span class="nc" id="L91">        return Collections.emptyList();</span>
+<span class="nc" id="L95">        return Collections.emptyList();</span>
     }
 
     @Override
     public String getEjbName() {
-<span class="nc" id="L96">        return name;</span>
+<span class="nc" id="L100">        return name;</span>
     }
 
     @Override
     public Collection&lt;Method&gt; getRemoveMethods() {
-<span class="nc" id="L101">        return Collections.emptyList();</span>
+<span class="nc" id="L105">        return Collections.emptyList();</span>
     }
 
     @Override
     public boolean isStateless() {
-<span class="nc" id="L106">        return true;</span>
+<span class="nc" id="L110">        return beanClass.isAnnotationPresent(Stateless.class);</span>
     }
 
     @Override
     public boolean isSingleton() {
-<span class="nc" id="L111">        return false;</span>
+<span class="nc" id="L115">        return beanClass.isAnnotationPresent(Singleton.class);</span>
     }
 
     @Override
     public boolean isStateful() {
-<span class="nc" id="L116">        return false;</span>
+<span class="nc" id="L120">        return beanClass.isAnnotationPresent(Stateful.class);</span>
     }
 
     @Override
     public boolean isMessageDriven() {
-<span class="nc" id="L121">        return false;</span>
+<span class="nc" id="L125">        return beanClass.isAnnotationPresent(MessageDriven.class);</span>
     }
 
     @Override
     public boolean isPassivationCapable() {
-<span class="nc" id="L126">        return false;</span>
+<span class="nc" id="L130">        Stateful annotation = beanClass.getAnnotation(Stateful.class);</span>
+<span class="nc bnc" id="L131" title="All 4 branches missed.">        return annotation != null &amp;&amp; annotation.passivationCapable();</span>
     }
 
     public void addLocalInterface(Class&lt;?&gt; type) {
-<span class="nc" id="L130">        localBusinessInterfaces.add(new BusinessInterface&lt;&gt;(type));</span>
-<span class="nc" id="L131">    }</span>
+<span class="nc" id="L135">        localBusinessInterfaces.add(new BusinessInterface&lt;&gt;(type));</span>
+<span class="nc" id="L136">    }</span>
 
     private static class BusinessInterface&lt;T&gt; implements BusinessInterfaceDescriptor&lt;T&gt; {
         private final Class&lt;T&gt; type;
 
-<span class="fc" id="L136">        public BusinessInterface(Class&lt;T&gt; type) {</span>
-<span class="fc" id="L137">            this.type = type;</span>
-<span class="fc" id="L138">        }</span>
+<span class="fc" id="L141">        public BusinessInterface(Class&lt;T&gt; type) {</span>
+<span class="fc" id="L142">            this.type = type;</span>
+<span class="fc" id="L143">        }</span>
 
         @Override
         public Class&lt;T&gt; getInterface() {
-<span class="fc" id="L142">            return type;</span>
+<span class="fc" id="L147">            return type;</span>
         }
     }
 
