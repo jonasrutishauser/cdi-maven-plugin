@@ -96,6 +96,11 @@ public class EarUtil implements ArchiveUtil {
                 typeDiscoveryConfiguration.getKnownBeanDefiningAnnotations()), extensions);
     }
 
+    @Override
+    public ClassLoader getClassLoader() {
+        return earClassloader;
+    }
+
     private Set<WeldBeanDeploymentArchive> getBeanDeploymentArchives(ResourceLoader resourceLoader,
             CDI11Bootstrap bootstrap, Set<Class<? extends Annotation>> beanDefiningAnnotations) {
         return Stream

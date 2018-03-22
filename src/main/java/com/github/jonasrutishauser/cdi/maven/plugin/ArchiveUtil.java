@@ -29,4 +29,6 @@ public interface ArchiveUtil {
 
     Deployment createDeployment(CDI11Bootstrap bootstrap);
 
+    ClassLoader getClassLoader();
+
 }

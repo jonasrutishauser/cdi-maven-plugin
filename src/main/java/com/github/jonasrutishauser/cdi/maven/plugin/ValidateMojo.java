@@ -72,7 +72,9 @@ public class ValidateMojo extends AbstractMojo {
         }
         System.setProperty("org.jboss.logging.provider", "slf4j");
         CDI11Bootstrap bootstrap = new WeldBootstrap();
+        ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();
         try {
+            Thread.currentThread().setContextClassLoader(util.getClassLoader());
             bootstrap.startContainer(UUID.randomUUID().toString(), Environments.EE, util.createDeployment(bootstrap));
             bootstrap.startInitialization();
             bootstrap.deployBeans();
@@ -82,6 +84,7 @@ public class ValidateMojo extends AbstractMojo {
             LoggerFactory.getLogger(getClass()).error(e.getMessage());
             throw new MojoFailureException("CDI error found: " + e.getMessage(), e);
         } finally {
+            Thread.currentThread().setContextClassLoader(oldContextClassLoader);
             bootstrap.shutdown();
         }
     }

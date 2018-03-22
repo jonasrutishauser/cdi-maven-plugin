@@ -117,6 +117,7 @@ public class WarUtil implements ArchiveUtil {
         return new WarDeployment(resourceLoader, bootstrap, archives, extensions);
     }
 
+    @Override
     public ClassLoader getClassLoader() {
         return warClassloader;
     }
