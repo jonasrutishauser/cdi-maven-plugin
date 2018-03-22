@@ -72,19 +72,22 @@ import com.github.jonasrutishauser.cdi.maven.plugin.war.WarUtil;
 <span class="nc" id="L72">        }</span>
 <span class="nc" id="L73">        System.setProperty(&quot;org.jboss.logging.provider&quot;, &quot;slf4j&quot;);</span>
 <span class="nc" id="L74">        CDI11Bootstrap bootstrap = new WeldBootstrap();</span>
+<span class="nc" id="L75">        ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();</span>
         try {
-<span class="nc" id="L76">            bootstrap.startContainer(UUID.randomUUID().toString(), Environments.EE, util.createDeployment(bootstrap));</span>
-<span class="nc" id="L77">            bootstrap.startInitialization();</span>
-<span class="nc" id="L78">            bootstrap.deployBeans();</span>
-<span class="nc" id="L79">            bootstrap.validateBeans();</span>
-<span class="nc" id="L80">            bootstrap.endInitialization();</span>
-<span class="nc" id="L81">        } catch (Exception e) {</span>
-<span class="nc" id="L82">            LoggerFactory.getLogger(getClass()).error(e.getMessage());</span>
-<span class="nc" id="L83">            throw new MojoFailureException(&quot;CDI error found: &quot; + e.getMessage(), e);</span>
+<span class="nc" id="L77">            Thread.currentThread().setContextClassLoader(util.getClassLoader());</span>
+<span class="nc" id="L78">            bootstrap.startContainer(UUID.randomUUID().toString(), Environments.EE, util.createDeployment(bootstrap));</span>
+<span class="nc" id="L79">            bootstrap.startInitialization();</span>
+<span class="nc" id="L80">            bootstrap.deployBeans();</span>
+<span class="nc" id="L81">            bootstrap.validateBeans();</span>
+<span class="nc" id="L82">            bootstrap.endInitialization();</span>
+<span class="nc" id="L83">        } catch (Exception e) {</span>
+<span class="nc" id="L84">            LoggerFactory.getLogger(getClass()).error(e.getMessage());</span>
+<span class="nc" id="L85">            throw new MojoFailureException(&quot;CDI error found: &quot; + e.getMessage(), e);</span>
         } finally {
-<span class="nc" id="L85">            bootstrap.shutdown();</span>
-<span class="nc" id="L86">        }</span>
-<span class="nc" id="L87">    }</span>
+<span class="nc" id="L87">            Thread.currentThread().setContextClassLoader(oldContextClassLoader);</span>
+<span class="nc" id="L88">            bootstrap.shutdown();</span>
+<span class="nc" id="L89">        }</span>
+<span class="nc" id="L90">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

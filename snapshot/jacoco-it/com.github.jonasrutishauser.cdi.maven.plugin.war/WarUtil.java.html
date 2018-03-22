@@ -117,25 +117,26 @@ public class WarUtil implements ArchiveUtil {
 <span class="fc" id="L117">        return new WarDeployment(resourceLoader, bootstrap, archives, extensions);</span>
     }
 
+    @Override
     public ClassLoader getClassLoader() {
-<span class="fc" id="L121">        return warClassloader;</span>
+<span class="fc" id="L122">        return warClassloader;</span>
     }
 
     public Set&lt;WeldBeanDeploymentArchive&gt; createArchives(CDI11Bootstrap bootstrap,
             Set&lt;Class&lt;? extends Annotation&gt;&gt; beanDefiningAnnotations) {
-<span class="fc" id="L126">        Set&lt;Class&lt;? extends Annotation&gt;&gt; annotations = new HashSet&lt;&gt;(beanDefiningAnnotations);</span>
-<span class="fc" id="L127">        ejbUtil.addBeanDefiningAnnotations(annotations);</span>
-<span class="fc" id="L128">        DiscoveryStrategy strategy = DiscoveryStrategyFactory.create(new ClassLoaderResourceLoader(warClassloader),</span>
+<span class="fc" id="L127">        Set&lt;Class&lt;? extends Annotation&gt;&gt; annotations = new HashSet&lt;&gt;(beanDefiningAnnotations);</span>
+<span class="fc" id="L128">        ejbUtil.addBeanDefiningAnnotations(annotations);</span>
+<span class="fc" id="L129">        DiscoveryStrategy strategy = DiscoveryStrategyFactory.create(new ClassLoaderResourceLoader(warClassloader),</span>
                 bootstrap, annotations, false);
-<span class="fc" id="L130">        strategy.setScanner(new WarBeanArchiveScanner(bootstrap, war, warClassloader.getURLs()));</span>
-<span class="fc" id="L131">        return strategy.performDiscovery().stream().map(ejbUtil::addEjbDescriptors).peek(this::addServices)</span>
-<span class="fc" id="L132">                .collect(Collectors.toSet());</span>
+<span class="fc" id="L131">        strategy.setScanner(new WarBeanArchiveScanner(bootstrap, war, warClassloader.getURLs()));</span>
+<span class="fc" id="L132">        return strategy.performDiscovery().stream().map(ejbUtil::addEjbDescriptors).peek(this::addServices)</span>
+<span class="fc" id="L133">                .collect(Collectors.toSet());</span>
     }
 
     private void addServices(WeldBeanDeploymentArchive archive) {
-<span class="fc" id="L136">        archive.getServices().add(EEModuleDescriptor.class,</span>
-<span class="fc" id="L137">                new EEModuleDescriptorImpl(archive.getId(), ModuleType.WEB));</span>
-<span class="fc" id="L138">    }</span>
+<span class="fc" id="L137">        archive.getServices().add(EEModuleDescriptor.class,</span>
+<span class="fc" id="L138">                new EEModuleDescriptorImpl(archive.getId(), ModuleType.WEB));</span>
+<span class="fc" id="L139">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
