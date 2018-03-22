@@ -110,6 +110,16 @@
 				<artifactId>maven-failsafe-plugin</artifactId>
 			</plugin>
 			<plugin>
+				<artifactId>maven-plugin-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>helpmojo</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>io.takari.maven.plugins</groupId>
 				<artifactId>takari-lifecycle-plugin</artifactId>
 				<version>1.13.1</version>
