@@ -45,7 +45,7 @@
 		<dependency>
 			<groupId>org.codehaus.plexus</groupId>
 			<artifactId>plexus-archiver</artifactId>
-			<version>3.5</version>
+			<version>3.6.0</version>
 		</dependency>
 
 		<dependency>
@@ -125,7 +125,7 @@
 				<version>1.13.1</version>
 				<executions>
 					<execution>
-						<?m2e ignore ?>
+						<?m2e ignore?>
 						<phase>process-test-resources</phase>
 						<goals>
 							<goal>testProperties</goal>
