@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EjbUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CDI Maven Plugin</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.cdi.maven.plugin.ear</a> &gt; <span class="el_source">EjbUtil.java</span></div><h1>EjbUtil.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.cdi.maven.plugin.ear;
+
+/*
+ * Copyright (C) 2017 Jonas Rutishauser
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation version 3 of the License.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.
+ * If not, see &lt;http://www.gnu.org/licenses/lgpl-3.0.txt&gt;.
+ */
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import javax.ejb.MessageDriven;
+import javax.ejb.Singleton;
+import javax.ejb.Stateful;
+import javax.ejb.Stateless;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathException;
+import javax.xml.xpath.XPathFactory;
+
+import org.jboss.weld.bootstrap.spi.EEModuleDescriptor;
+import org.jboss.weld.bootstrap.spi.EEModuleDescriptor.ModuleType;
+import org.jboss.weld.bootstrap.spi.helpers.EEModuleDescriptorImpl;
+import org.jboss.weld.ejb.spi.EjbDescriptor;
+import org.jboss.weld.environment.deployment.WeldBeanDeploymentArchive;
+import org.jboss.weld.resources.spi.ResourceLoader;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import com.github.jonasrutishauser.cdi.maven.plugin.weld.SimpleEjbDescriptor;
+import com.github.jonasrutishauser.cdi.maven.plugin.weld.WarBeanArchiveScanner;
+
+<span class="nc" id="L61">public class EjbUtil {</span>
+
+    public void addBeanDefiningAnnotations(Set&lt;Class&lt;? extends Annotation&gt;&gt; annotations) {
+<span class="nc" id="L64">        annotations.add(Stateless.class);</span>
+<span class="nc" id="L65">        annotations.add(Stateful.class);</span>
+<span class="nc" id="L66">        annotations.add(Singleton.class);</span>
+<span class="nc" id="L67">        annotations.add(MessageDriven.class);</span>
+<span class="nc" id="L68">    }</span>
+
+    public WeldBeanDeploymentArchive addEjbDescriptors(WeldBeanDeploymentArchive archive) {
+<span class="nc" id="L71">        archive.getServices().add(EEModuleDescriptor.class,</span>
+<span class="nc" id="L72">                new EEModuleDescriptorImpl(archive.getId(), ModuleType.EJB_JAR));</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        Predicate&lt;Class&lt;?&gt;&gt; isEjb = type -&gt; type.isAnnotationPresent(Stateless.class)</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">                || type.isAnnotationPresent(Stateful.class) //</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">                || type.isAnnotationPresent(Singleton.class) //</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">                || type.isAnnotationPresent(MessageDriven.class);</span>
+<span class="nc" id="L77">        ResourceLoader resourceLoader = archive.getServices().get(ResourceLoader.class);</span>
+<span class="nc" id="L78">        Map&lt;String, EjbDescriptor&lt;?&gt;&gt; descriptors = archive.getBeanClasses().stream().map(resourceLoader::classForName)</span>
+<span class="nc" id="L79">                .filter(isEjb).collect(Collectors.toMap(Class::getSimpleName, SimpleEjbDescriptor::new, (u, v) -&gt; {</span>
+<span class="nc" id="L80">                    throw new IllegalStateException(String.format(&quot;Duplicate key %s&quot;, u));</span>
+                }, HashMap::new));
+<span class="nc" id="L82">        String archivePath = archive.getId();</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        if (archivePath.endsWith(WarBeanArchiveScanner.CLASSES)) {</span>
+<span class="nc" id="L84">            addEjbsFromDescriptor(descriptors, resourceLoader,</span>
+<span class="nc" id="L85">                    new File(new File(archivePath).getParentFile(), &quot;ejb-jar.xml&quot;).toURI().toString());</span>
+        } else {
+<span class="nc" id="L87">            addEjbsFromDescriptor(descriptors, resourceLoader,</span>
+<span class="nc" id="L88">                    &quot;jar:&quot; + new File(archivePath).toURI() + &quot;!/META-INF/ejb-jar.xml&quot;);</span>
+        }
+<span class="nc" id="L90">        WeldBeanDeploymentArchive weldBeanDeploymentArchive = new WeldBeanDeploymentArchive(archive.getId(),</span>
+<span class="nc" id="L91">                archive.getBeanClasses(), archive.getBeansXml()) {</span>
+            @Override
+            public Collection&lt;EjbDescriptor&lt;?&gt;&gt; getEjbs() {
+<span class="nc" id="L94">                return descriptors.values();</span>
+            }
+        };
+<span class="nc" id="L97">        weldBeanDeploymentArchive.getServices().addAll(archive.getServices().entrySet());</span>
+<span class="nc" id="L98">        return weldBeanDeploymentArchive;</span>
+    }
+
+    private void addEjbsFromDescriptor(Map&lt;String, EjbDescriptor&lt;?&gt;&gt; ejbs, ResourceLoader resourceLoader,
+            String descriptorUrl) {
+        try {
+<span class="nc" id="L104">            DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();</span>
+<span class="nc" id="L105">            Document doc = documentBuilder.parse(descriptorUrl);</span>
+<span class="nc" id="L106">            XPath xPath = XPathFactory.newInstance().newXPath();</span>
+<span class="nc" id="L107">            NodeList beans = (NodeList) xPath.evaluate(&quot;//enterprise-beans/*&quot;, doc, XPathConstants.NODESET);</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">            for (int i = 0; i &lt; beans.getLength(); i++) {</span>
+<span class="nc" id="L109">                Element bean = (Element) beans.item(i);</span>
+<span class="nc" id="L110">                String name = getValue(bean, &quot;ejb-name&quot;).orElseThrow(</span>
+<span class="nc" id="L111">                        () -&gt; new IllegalArgumentException(&quot;required 'ejb-name' not found in deployment descriptor&quot;));</span>
+<span class="nc" id="L112">                SimpleEjbDescriptor&lt;?&gt; descriptor = (SimpleEjbDescriptor&lt;?&gt;) ejbs.computeIfAbsent(name,</span>
+<span class="nc" id="L113">                        beanName -&gt; new SimpleEjbDescriptor&lt;&gt;(</span>
+<span class="nc" id="L114">                                resourceLoader.classForName(</span>
+<span class="nc" id="L115">                                        getValue(bean, &quot;ejb-class&quot;).orElseThrow(() -&gt; new IllegalArgumentException(</span>
+                                                &quot;required 'ejb-class' not found in deployment descriptor&quot;))),
+                                beanName));
+<span class="nc" id="L118">                boolean hasInterface = hasInterface(bean);</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">                if (hasInterface) {</span>
+<span class="nc" id="L120">                    descriptor.getLocalBusinessInterfaces().clear();</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">                    if (getValue(bean, &quot;local-bean&quot;).isPresent()) {</span>
+<span class="nc" id="L122">                        descriptor.addLocalInterface(descriptor.getBeanClass());</span>
+                    }
+<span class="nc" id="L124">                    NodeList interfaces = bean.getElementsByTagName(&quot;business-local&quot;);</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">                    for (int j = 0; j &lt; interfaces.getLength(); j++) {</span>
+<span class="nc" id="L126">                        descriptor.addLocalInterface(resourceLoader.classForName(interfaces.item(j).getTextContent()));</span>
+                    }
+                }
+            }
+<span class="nc" id="L130">        } catch (ParserConfigurationException | SAXException | XPathException e) {</span>
+<span class="nc" id="L131">            LoggerFactory.getLogger(getClass()).warn(&quot;failed to read deployment descriptor in &quot; + descriptorUrl, e);</span>
+<span class="nc" id="L132">        } catch (IOException e) {</span>
+            // ignore
+<span class="nc" id="L134">        }</span>
+<span class="nc" id="L135">    }</span>
+
+    private boolean hasInterface(Element bean) {
+<span class="nc" id="L138">        Set&lt;String&gt; interfaces = new HashSet&lt;&gt;(Arrays.asList(&quot;home&quot;, &quot;remote&quot;, &quot;local-home&quot;, &quot;local&quot;, &quot;business-local&quot;,</span>
+                &quot;business-remote&quot;, &quot;local-bean&quot;));
+<span class="nc bnc" id="L140" title="All 2 branches missed.">        for (int i = 0; i &lt; bean.getChildNodes().getLength(); i++) {</span>
+<span class="nc" id="L141">            Node node = bean.getChildNodes().item(i);</span>
+<span class="nc bnc" id="L142" title="All 4 branches missed.">            if (node instanceof Element &amp;&amp; interfaces.contains(node.getNodeName())) {</span>
+<span class="nc" id="L143">                return true;</span>
+            }
+        }
+<span class="nc" id="L146">        return false;</span>
+    }
+
+    private Optional&lt;String&gt; getValue(Element element, String elementName) {
+<span class="nc" id="L150">        NodeList elements = element.getElementsByTagName(elementName);</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">        if (elements.getLength() == 1) {</span>
+<span class="nc" id="L152">            return Optional.of(elements.item(0).getTextContent());</span>
+        }
+<span class="nc" id="L154">        return Optional.empty();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ValidateMojo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CDI Maven Plugin</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.cdi.maven.plugin</a> &gt; <span class="el_source">ValidateMojo.java</span></div><h1>ValidateMojo.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.cdi.maven.plugin;
+
+/*
+ * Copyright (C) 2017 Jonas Rutishauser
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation version 3 of the License.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.
+ * If not, see &lt;http://www.gnu.org/licenses/lgpl-3.0.txt&gt;.
+ */
+
+import java.io.File;
+import java.net.MalformedURLException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.archiver.manager.ArchiverManager;
+import org.jboss.weld.bootstrap.WeldBootstrap;
+import org.jboss.weld.bootstrap.api.CDI11Bootstrap;
+import org.jboss.weld.bootstrap.api.Environments;
+import org.slf4j.LoggerFactory;
+
+import com.github.jonasrutishauser.cdi.maven.plugin.ear.EarUtil;
+import com.github.jonasrutishauser.cdi.maven.plugin.war.WarUtil;
+
+/**
+ * Validates the CDI configuration of a war or ear.
+ * 
+ * @author jonas
+ */
+@Mojo(name = &quot;validate&quot;, defaultPhase = LifecyclePhase.VERIFY, requiresProject = true, threadSafe = true)
+<span class="nc" id="L49">public class ValidateMojo extends AbstractMojo {</span>
+
+    @Parameter(defaultValue = &quot;${project}&quot;, readonly = true)
+    private MavenProject project;
+
+    @Parameter(defaultValue = &quot;${project.build.directory}/cdi&quot;, readonly = true)
+    private File workDirectory;
+
+<span class="nc" id="L57">    @Parameter</span>
+    private Map&lt;String, String&gt; systemProperties = new HashMap&lt;&gt;();
+
+    @Component
+    private ArchiverManager archiverManager;
+    
+<span class="nc" id="L63">    private final Map&lt;String, String&gt; oldSystemProperties = new HashMap&lt;&gt;();</span>
+
+    @Override
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        ArchiveUtil util;
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (&quot;ear&quot;.equals(project.getPackaging())) {</span>
+<span class="nc" id="L69">            util = new EarUtil(archiverManager);</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">        } else if (&quot;war&quot;.equals(project.getPackaging())) {</span>
+<span class="nc" id="L71">            util = new WarUtil(archiverManager);</span>
+        } else {
+<span class="nc" id="L73">            return;</span>
+        }
+        try {
+<span class="nc" id="L76">            util.init(workDirectory, project.getArtifact().getFile());</span>
+<span class="nc" id="L77">        } catch (MalformedURLException e) {</span>
+<span class="nc" id="L78">            throw new MojoExecutionException(&quot;failed to load ear&quot;, e);</span>
+<span class="nc" id="L79">        }</span>
+<span class="nc" id="L80">        systemProperties.forEach((key, value) -&gt; oldSystemProperties.put(key, System.setProperty(key, value)));</span>
+<span class="nc" id="L81">        oldSystemProperties.put(&quot;org.jboss.logging.provider&quot;, System.setProperty(&quot;org.jboss.logging.provider&quot;, &quot;slf4j&quot;));</span>
+<span class="nc" id="L82">        CDI11Bootstrap bootstrap = new WeldBootstrap();</span>
+<span class="nc" id="L83">        ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();</span>
+        try {
+<span class="nc" id="L85">            Thread.currentThread().setContextClassLoader(util.getClassLoader());</span>
+<span class="nc" id="L86">            bootstrap.startContainer(UUID.randomUUID().toString(), Environments.EE, util.createDeployment(bootstrap));</span>
+<span class="nc" id="L87">            bootstrap.startInitialization();</span>
+<span class="nc" id="L88">            bootstrap.deployBeans();</span>
+<span class="nc" id="L89">            bootstrap.validateBeans();</span>
+<span class="nc" id="L90">            bootstrap.endInitialization();</span>
+<span class="nc" id="L91">        } catch (Exception e) {</span>
+<span class="nc" id="L92">            LoggerFactory.getLogger(getClass()).error(e.getMessage());</span>
+<span class="nc" id="L93">            throw new MojoFailureException(&quot;CDI error found: &quot; + e.getMessage(), e);</span>
+        } finally {
+<span class="nc" id="L95">            Thread.currentThread().setContextClassLoader(oldContextClassLoader);</span>
+<span class="nc" id="L96">            bootstrap.shutdown();</span>
+<span class="nc" id="L97">            oldSystemProperties.forEach((key, value) -&gt; {</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">                if (value == null) {</span>
+<span class="nc" id="L99">                    System.clearProperty(key);</span>
+                } else {
+<span class="nc" id="L101">                    System.setProperty(key, value);</span>
+                }
+<span class="nc" id="L103">            });</span>
+        }
+<span class="nc" id="L105">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
