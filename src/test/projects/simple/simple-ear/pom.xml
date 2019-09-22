@@ -39,6 +39,11 @@
 						<goals>
 							<goal>validate</goal>
 						</goals>
+						<configuration>
+							<systemProperties>
+								<additional.test.property>foo</additional.test.property>
+							</systemProperties>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>

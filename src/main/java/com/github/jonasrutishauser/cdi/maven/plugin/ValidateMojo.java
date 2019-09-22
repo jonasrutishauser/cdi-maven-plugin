@@ -19,6 +19,8 @@ package com.github.jonasrutishauser.cdi.maven.plugin;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -52,8 +54,13 @@ public class ValidateMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.build.directory}/cdi", readonly = true)
     private File workDirectory;
 
+    @Parameter
+    private Map<String, String> systemProperties = new HashMap<>();
+
     @Component
     private ArchiverManager archiverManager;
+    
+    private final Map<String, String> oldSystemProperties = new HashMap<>();
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -70,7 +77,8 @@ public class ValidateMojo extends AbstractMojo {
         } catch (MalformedURLException e) {
             throw new MojoExecutionException("failed to load ear", e);
         }
-        System.setProperty("org.jboss.logging.provider", "slf4j");
+        systemProperties.forEach((key, value) -> oldSystemProperties.put(key, System.setProperty(key, value)));
+        oldSystemProperties.put("org.jboss.logging.provider", System.setProperty("org.jboss.logging.provider", "slf4j"));
         CDI11Bootstrap bootstrap = new WeldBootstrap();
         ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();
         try {
@@ -86,6 +94,13 @@ public class ValidateMojo extends AbstractMojo {
         } finally {
             Thread.currentThread().setContextClassLoader(oldContextClassLoader);
             bootstrap.shutdown();
+            oldSystemProperties.forEach((key, value) -> {
+                if (value == null) {
+                    System.clearProperty(key);
+                } else {
+                    System.setProperty(key, value);
+                }
+            });
         }
     }
 

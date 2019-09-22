@@ -36,7 +36,7 @@ import io.takari.maven.testing.executor.MavenVersions;
 import io.takari.maven.testing.executor.junit.MavenJUnitTestRunner;
 
 @RunWith(MavenJUnitTestRunner.class)
-@MavenVersions({"3.3.3", "3.3.9", "3.5.0", "3.5.2", "3.5.3"})
+@MavenVersions({"3.5.0", "3.5.3", "3.6.2"})
 public class ValidateMojoIT {
 
     @Rule
@@ -60,8 +60,21 @@ public class ValidateMojoIT {
     @Test
     public void verifySimpleNotValid() throws Exception {
         File basedir = resources.getBasedir("simple");
-        Files.delete(basedir.toPath().resolve("simple-java").resolve("src").resolve("main").resolve("resources")
-                .resolve("META-INF").resolve("beans.xml"));
+        Files.delete(basedir.toPath().resolve("simple-java/src/main/resources/META-INF/beans.xml"));
+
+        MavenExecutionResult result = mavenRuntime.forProject(basedir).execute("clean", "verify");
+
+        result.assertLogText("Unsatisfied dependencies for type Foo with qualifiers @Default")
+                .assertLogText("private test.TestBean.foo");
+    }
+
+    @Test
+    public void verifySimpleNotValidWithSystemProperty() throws Exception {
+        File basedir = resources.getBasedir("simple");
+        Files.write(basedir.toPath().resolve("simple-java/src/main/resources/META-INF/beans.xml"),
+                ("<beans xmlns=\"http://xmlns.jcp.org/xml/ns/javaee\" bean-discovery-mode=\"all\">\n"
+                        + "<scan><exclude name=\"test.FooImpl\"><if-system-property name=\"additional.test.property\"/></exclude></scan>\n"
+                        + "</beans>").getBytes(StandardCharsets.UTF_8));
 
         MavenExecutionResult result = mavenRuntime.forProject(basedir).execute("clean", "verify");
 
@@ -81,8 +94,7 @@ public class ValidateMojoIT {
     @Test
     public void verifyEjbsNotValid() throws Exception {
         File basedir = resources.getBasedir("ejbs");
-        Files.write(basedir.toPath().resolve("simple-java").resolve("src").resolve("main").resolve("resources")
-                .resolve("META-INF").resolve("beans.xml"), new byte[0]);
+        Files.write(basedir.toPath().resolve("simple-java/src/main/resources/META-INF/beans.xml"), new byte[0]);
 
         MavenExecutionResult result = mavenRuntime.forProject(basedir).execute("clean", "verify");
 
@@ -94,8 +106,7 @@ public class ValidateMojoIT {
     @Test
     public void verifyEjbsValidSecondEjbLocalBean() throws Exception {
         File basedir = resources.getBasedir("ejbs");
-        Path ejbDescriptor = basedir.toPath().resolve("simple-ejb").resolve("src").resolve("main").resolve("resources")
-                .resolve("META-INF").resolve("ejb-jar.xml");
+        Path ejbDescriptor = basedir.toPath().resolve("simple-ejb/src/main/resources/META-INF/ejb-jar.xml");
         Files.createDirectories(ejbDescriptor.getParent());
         Files.write(ejbDescriptor, Arrays.asList(
                 "<ejb-jar version=\"3.1\" xmlns=\"http://java.sun.com/xml/ns/javaee\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/ejb-jar_3_1.xsd\">",
@@ -117,8 +128,7 @@ public class ValidateMojoIT {
     @Test
     public void verifyEjbsNotValidSecondEjb() throws Exception {
         File basedir = resources.getBasedir("ejbs");
-        Path ejbDescriptor = basedir.toPath().resolve("simple-ejb").resolve("src").resolve("main").resolve("resources")
-                .resolve("META-INF").resolve("ejb-jar.xml");
+        Path ejbDescriptor = basedir.toPath().resolve("simple-ejb/src/main/resources/META-INF/ejb-jar.xml");
         Files.createDirectories(ejbDescriptor.getParent());
         Files.write(ejbDescriptor, Arrays.asList(
                 "<ejb-jar version=\"3.1\" xmlns=\"http://java.sun.com/xml/ns/javaee\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/ejb-jar_3_1.xsd\">",
