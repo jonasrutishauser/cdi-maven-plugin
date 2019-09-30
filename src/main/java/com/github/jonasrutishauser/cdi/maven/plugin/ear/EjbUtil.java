@@ -1,5 +1,7 @@
 package com.github.jonasrutishauser.cdi.maven.plugin.ear;
 
+import static javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING;
+
 /*
  * Copyright (C) 2017 Jonas Rutishauser
  * 
@@ -101,7 +103,9 @@ public class EjbUtil {
     private void addEjbsFromDescriptor(Map<String, EjbDescriptor<?>> ejbs, ResourceLoader resourceLoader,
             String descriptorUrl) {
         try {
-            DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setFeature(FEATURE_SECURE_PROCESSING, true);
+            DocumentBuilder documentBuilder = factory.newDocumentBuilder();
             Document doc = documentBuilder.parse(descriptorUrl);
             XPath xPath = XPathFactory.newInstance().newXPath();
             NodeList beans = (NodeList) xPath.evaluate("//enterprise-beans/*", doc, XPathConstants.NODESET);

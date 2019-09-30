@@ -129,8 +129,10 @@ public class WarUtil implements ArchiveUtil {
         DiscoveryStrategy strategy = DiscoveryStrategyFactory.create(new ClassLoaderResourceLoader(warClassloader),
                 bootstrap, annotations, false);
         strategy.setScanner(new WarBeanArchiveScanner(bootstrap, war, warClassloader.getURLs()));
-        return strategy.performDiscovery().stream().map(ejbUtil::addEjbDescriptors).peek(this::addServices)
+        Set<WeldBeanDeploymentArchive> archives = strategy.performDiscovery().stream().map(ejbUtil::addEjbDescriptors)
                 .collect(Collectors.toSet());
+        archives.forEach(this::addServices);
+        return archives;
     }
 
     private void addServices(WeldBeanDeploymentArchive archive) {

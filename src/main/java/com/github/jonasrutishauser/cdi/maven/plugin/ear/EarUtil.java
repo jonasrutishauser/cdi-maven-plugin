@@ -1,5 +1,7 @@
 package com.github.jonasrutishauser.cdi.maven.plugin.ear;
 
+import static javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING;
+
 /*
  * Copyright (C) 2017 Jonas Rutishauser
  * 
@@ -24,6 +26,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -121,8 +124,10 @@ public class EarUtil implements ArchiveUtil {
         DiscoveryStrategy strategy = DiscoveryStrategyFactory.create(resourceLoader, bootstrap, beanDefiningAnnotations,
                 false);
         strategy.setScanner(new JarsBeanArchiveScanner(bootstrap, libraries));
-        return strategy.performDiscovery().stream().peek(archive -> archive.getServices().add(EEModuleDescriptor.class,
-                new EEModuleDescriptorImpl(archive.getId(), ModuleType.EAR))).collect(Collectors.toSet());
+        Set<WeldBeanDeploymentArchive> archives = strategy.performDiscovery();
+        archives.forEach(archive -> archive.getServices().add(EEModuleDescriptor.class,
+                new EEModuleDescriptorImpl(archive.getId(), ModuleType.EAR)));
+        return archives;
     }
 
     private Set<WeldBeanDeploymentArchive> getEjbArchives(ResourceLoader resourceLoader, CDI11Bootstrap bootstrap,
@@ -160,7 +165,9 @@ public class EarUtil implements ArchiveUtil {
         File libDir = new File(extractedDir, "lib");
         Set<File> warFiles = new HashSet<>();
         try {
-            DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setFeature(FEATURE_SECURE_PROCESSING, true);
+            DocumentBuilder documentBuilder = factory.newDocumentBuilder();
             Document doc = documentBuilder.parse(new File(extractedDir, "META-INF/application.xml"));
             XPath xPath = XPathFactory.newInstance().newXPath();
             NodeList modules = (NodeList) xPath.evaluate("//module/*", doc, XPathConstants.NODESET);
@@ -185,9 +192,7 @@ public class EarUtil implements ArchiveUtil {
         }
         File[] jars = libDir.listFiles(file -> file.getName().endsWith(".jar"));
         if (jars != null) {
-            for (File jar : jars) {
-                libraries.add(jar);
-            }
+            libraries.addAll(Arrays.asList(jars));
         }
         List<URL> urls = new ArrayList<>(ejbs.size() + libraries.size());
         for (File ejb : ejbs) {

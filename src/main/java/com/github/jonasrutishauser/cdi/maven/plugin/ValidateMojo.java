@@ -35,7 +35,6 @@ import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.jboss.weld.bootstrap.WeldBootstrap;
 import org.jboss.weld.bootstrap.api.CDI11Bootstrap;
 import org.jboss.weld.bootstrap.api.Environments;
-import org.slf4j.LoggerFactory;
 
 import com.github.jonasrutishauser.cdi.maven.plugin.ear.EarUtil;
 import com.github.jonasrutishauser.cdi.maven.plugin.war.WarUtil;
@@ -89,7 +88,6 @@ public class ValidateMojo extends AbstractMojo {
             bootstrap.validateBeans();
             bootstrap.endInitialization();
         } catch (Exception e) {
-            LoggerFactory.getLogger(getClass()).error(e.getMessage());
             throw new MojoFailureException("CDI error found: " + e.getMessage(), e);
         } finally {
             Thread.currentThread().setContextClassLoader(oldContextClassLoader);
