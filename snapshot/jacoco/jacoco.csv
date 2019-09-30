@@ -1,10 +1,10 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
 CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.ear,EjbUtil.new WeldBeanDeploymentArchive() {...},16,0,0,0,2,0,2,0,2,0
-CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.ear,EjbUtil,355,0,26,0,61,0,24,0,11,0
-CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.ear,EarUtil,492,0,18,0,84,0,22,0,13,0
+CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.ear,EjbUtil,361,0,26,0,63,0,24,0,11,0
+CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.ear,EarUtil,482,0,16,0,87,0,21,0,13,0
 CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.weld.bootstrap,PredefinedBeansExtension,22,0,0,0,6,0,2,0,2,0
 CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.weld.bootstrap,PredefinedBeansExtension.new ForwardingAnnotatedType() {...},16,0,0,0,3,0,3,0,3,0
-CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.war,WarUtil,246,0,4,0,46,0,11,0,9,0
+CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.war,WarUtil,249,0,4,0,48,0,11,0,9,0
 CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.weld.services,MockEjbServices,7,0,0,0,4,0,4,0,4,0
 CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.weld.services,MockTransactionServices,9,0,0,0,5,0,5,0,5,0
 CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.weld.services,MockSecurityServices,6,0,0,0,3,0,3,0,3,0
@@ -17,4 +17,4 @@ CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.weld,WarBeanArchiv
 CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.weld,EarDeployment,85,0,10,0,11,0,11,0,6,0
 CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.weld,SimpleEjbDescriptor,54,150,4,24,12,26,12,18,10,6
 CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin,HelpMojo,893,0,110,0,159,0,71,0,16,0
-CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin,ValidateMojo,152,0,6,0,33,0,7,0,4,0
+CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin,ValidateMojo,153,0,6,0,36,0,7,0,4,0

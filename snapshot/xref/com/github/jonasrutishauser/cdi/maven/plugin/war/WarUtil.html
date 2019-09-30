@@ -137,16 +137,18 @@
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>         DiscoveryStrategy strategy = DiscoveryStrategyFactory.create(<strong class="jxr_keyword">new</strong> ClassLoaderResourceLoader(warClassloader),
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>                 bootstrap, annotations, false);
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>         strategy.setScanner(<strong class="jxr_keyword">new</strong> <a name="WarBeanArchiveScanner" href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/weld/WarBeanArchiveScanner.html#WarBeanArchiveScanner">WarBeanArchiveScanner</a>(bootstrap, war, warClassloader.getURLs()));
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>         <strong class="jxr_keyword">return</strong> strategy.performDiscovery().stream().map(ejbUtil::addEjbDescriptors).peek(<strong class="jxr_keyword">this</strong>::addServices)
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>         Set&lt;WeldBeanDeploymentArchive&gt; archives = strategy.performDiscovery().stream().map(ejbUtil::addEjbDescriptors)
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>                 .collect(Collectors.toSet());
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>     }
-<a class="jxr_linenumber" name="L135" href="#L135">135</a> 
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> addServices(WeldBeanDeploymentArchive archive) {
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>         archive.getServices().add(EEModuleDescriptor.<strong class="jxr_keyword">class</strong>,
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>                 <strong class="jxr_keyword">new</strong> EEModuleDescriptorImpl(archive.getId(), ModuleType.WEB));
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>     }
-<a class="jxr_linenumber" name="L140" href="#L140">140</a> 
-<a class="jxr_linenumber" name="L141" href="#L141">141</a> }
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>         archives.forEach(<strong class="jxr_keyword">this</strong>::addServices);
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>         <strong class="jxr_keyword">return</strong> archives;
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>     }
+<a class="jxr_linenumber" name="L137" href="#L137">137</a> 
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> addServices(WeldBeanDeploymentArchive archive) {
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>         archive.getServices().add(EEModuleDescriptor.<strong class="jxr_keyword">class</strong>,
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>                 <strong class="jxr_keyword">new</strong> EEModuleDescriptorImpl(archive.getId(), ModuleType.WEB));
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>     }
+<a class="jxr_linenumber" name="L142" href="#L142">142</a> 
+<a class="jxr_linenumber" name="L143" href="#L143">143</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2019. All rights reserved.</div>

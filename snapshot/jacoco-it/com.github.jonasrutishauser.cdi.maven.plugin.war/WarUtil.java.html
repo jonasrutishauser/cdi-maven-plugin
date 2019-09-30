@@ -129,14 +129,16 @@ public class WarUtil implements ArchiveUtil {
 <span class="fc" id="L129">        DiscoveryStrategy strategy = DiscoveryStrategyFactory.create(new ClassLoaderResourceLoader(warClassloader),</span>
                 bootstrap, annotations, false);
 <span class="fc" id="L131">        strategy.setScanner(new WarBeanArchiveScanner(bootstrap, war, warClassloader.getURLs()));</span>
-<span class="fc" id="L132">        return strategy.performDiscovery().stream().map(ejbUtil::addEjbDescriptors).peek(this::addServices)</span>
+<span class="fc" id="L132">        Set&lt;WeldBeanDeploymentArchive&gt; archives = strategy.performDiscovery().stream().map(ejbUtil::addEjbDescriptors)</span>
 <span class="fc" id="L133">                .collect(Collectors.toSet());</span>
+<span class="fc" id="L134">        archives.forEach(this::addServices);</span>
+<span class="fc" id="L135">        return archives;</span>
     }
 
     private void addServices(WeldBeanDeploymentArchive archive) {
-<span class="fc" id="L137">        archive.getServices().add(EEModuleDescriptor.class,</span>
-<span class="fc" id="L138">                new EEModuleDescriptorImpl(archive.getId(), ModuleType.WEB));</span>
-<span class="fc" id="L139">    }</span>
+<span class="fc" id="L139">        archive.getServices().add(EEModuleDescriptor.class,</span>
+<span class="fc" id="L140">                new EEModuleDescriptorImpl(archive.getId(), ModuleType.WEB));</span>
+<span class="fc" id="L141">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
