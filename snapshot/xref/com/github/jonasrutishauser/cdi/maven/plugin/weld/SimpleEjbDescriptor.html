@@ -22,7 +22,7 @@
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_comment"> * </em>
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_comment"> * You should have received a copy of the GNU Lesser General Public License</em>
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_comment"> * along with this program.</em>
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_comment"> * If not, see &lt;<a href="http://www.gnu.org/licenses/lgpl-3.0.txt&gt;" target="alexandria_uri">http://www.gnu.org/licenses/lgpl-3.0.txt&gt;</a>.</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_comment"> * If not, see &lt;<a href="http://www.gnu.org/licenses/lgpl-3.0.txt&gt;." target="alexandria_uri">http://www.gnu.org/licenses/lgpl-3.0.txt&gt;.</a></em>
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> java.io.Externalizable;
@@ -53,11 +53,11 @@
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String name;
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Collection&lt;BusinessInterfaceDescriptor&lt;?&gt;&gt; localBusinessInterfaces = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/weld/SimpleEjbDescriptor.html">SimpleEjbDescriptor</a>(Class&lt;T&gt; beanClass) {
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">public</strong> <a name="SimpleEjbDescriptor" href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/weld/SimpleEjbDescriptor.html#SimpleEjbDescriptor">SimpleEjbDescriptor</a>(Class&lt;T&gt; beanClass) {
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>          <strong class="jxr_keyword">this</strong>(beanClass, beanClass.getSimpleName());
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>      }
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/weld/SimpleEjbDescriptor.html">SimpleEjbDescriptor</a>(Class&lt;T&gt; beanClass, String name) {
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">public</strong> <a name="SimpleEjbDescriptor" href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/weld/SimpleEjbDescriptor.html#SimpleEjbDescriptor">SimpleEjbDescriptor</a>(Class&lt;T&gt; beanClass, String name) {
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>          <strong class="jxr_keyword">this</strong>.beanClass = beanClass;
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>          <strong class="jxr_keyword">this</strong>.name = name;
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>          collectLocalInterfaces();
@@ -146,7 +146,7 @@
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> BusinessInterface&lt;T&gt; <strong class="jxr_keyword">implements</strong> BusinessInterfaceDescriptor&lt;T&gt; {
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Class&lt;T&gt; type;
 <a class="jxr_linenumber" name="L140" href="#L140">140</a> 
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>         <strong class="jxr_keyword">public</strong> <a href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/weld/SimpleEjbDescriptor.html">BusinessInterface</a>(Class&lt;T&gt; type) {
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>         <strong class="jxr_keyword">public</strong> BusinessInterface(Class&lt;T&gt; type) {
 <a class="jxr_linenumber" name="L142" href="#L142">142</a>             <strong class="jxr_keyword">this</strong>.type = type;
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>         }
 <a class="jxr_linenumber" name="L144" href="#L144">144</a> 
@@ -159,6 +159,6 @@
 <a class="jxr_linenumber" name="L151" href="#L151">151</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2018. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019. All rights reserved.</div>
 </body>
 </html>

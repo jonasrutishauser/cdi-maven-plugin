@@ -22,7 +22,7 @@
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_comment"> * </em>
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_comment"> * You should have received a copy of the GNU Lesser General Public License</em>
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_comment"> * along with this program.</em>
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_comment"> * If not, see &lt;<a href="http://www.gnu.org/licenses/lgpl-3.0.txt&gt;" target="alexandria_uri">http://www.gnu.org/licenses/lgpl-3.0.txt&gt;</a>.</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_comment"> * If not, see &lt;<a href="http://www.gnu.org/licenses/lgpl-3.0.txt&gt;." target="alexandria_uri">http://www.gnu.org/licenses/lgpl-3.0.txt&gt;.</a></em>
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> java.io.File;
@@ -80,10 +80,10 @@
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>  <strong class="jxr_keyword">import</strong> com.github.jonasrutishauser.cdi.maven.plugin.weld.JarsBeanArchiveScanner;
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>  <strong class="jxr_keyword">import</strong> com.github.jonasrutishauser.cdi.maven.plugin.weld.bootstrap.PredefinedBeansExtension;
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>  
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/ear/EarUtil.html">EarUtil</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/ArchiveUtil.html">ArchiveUtil</a> {
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="EarUtil" href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/ear/EarUtil.html#EarUtil">EarUtil</a> <strong class="jxr_keyword">implements</strong> <a name="ArchiveUtil" href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/ArchiveUtil.html#ArchiveUtil">ArchiveUtil</a> {
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>  
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> ArchiverManager archiverManager;
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/ear/EjbUtil.html">EjbUtil</a> ejbUtil = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/ear/EjbUtil.html">EjbUtil</a>();
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a name="EjbUtil" href="../../../../../../../com/github/jon<a name="EjbUtil" href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/ear/EjbUtil.html#EjbUtil">EjbUtil</a>hauser/cdi/maven/plugin/ear/EjbUtil.html#EjbUtil">EjbUtil</a> ejbUtil = <strong class="jxr_keyword">new</strong> <a name="EjbUtil" href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/ear/EjbUtil.html#EjbUtil">EjbUtil</a>();
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>  
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Set&lt;File&gt; ejbs = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Set&lt;File&gt; libraries = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
@@ -91,16 +91,16 @@
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>  
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>      <strong class="jxr_keyword">private</strong> ClassLoader earClassloader;
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>  
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/ear/EarUtil.html">EarUtil</a>(ArchiverManager archiverManager) {
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>      <strong class="jxr_keyword">public</strong> <a name="EarUtil" href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/ear/EarUtil.html#EarUtil">EarUtil</a>(ArchiverManager archiverManager) {
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>          <strong class="jxr_keyword">this</strong>.archiverManager = archiverManager;
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>      }
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>  
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>      <strong class="jxr_keyword">public</strong> Deployment createDeployment(CDI11Bootstrap bootstrap) {
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>          ResourceLoader resourceLoader = <strong class="jxr_keyword">new</strong> ClassLoaderResourceLoader(earClassloader);
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>          Set&lt;Metadata&lt;Extension&gt;&gt; extensions = getExtensions(bootstrap);
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>          extensions.add(MetadataImpl.from(<strong class="jxr_keyword">new</strong> <a href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/weld/bootstrap/PredefinedBeansExtension.html">PredefinedBeansExtension</a>(Validator.<strong class="jxr_keyword">class</strong>, ValidatorFactory.<strong class="jxr_keyword">class</strong>)));
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          extensions.add(MetadataImpl.from(<strong class="jxr_keyword">new</strong> <a name="PredefinedBeansExtension" href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/weld/bootstrap/PredefinedBeansExtension.html#PredefinedBeansExtension">PredefinedBeansExtension</a>(Validator.<strong class="jxr_keyword">class</strong>, ValidatorFactory.<strong class="jxr_keyword">class</strong>)));
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>          TypeDiscoveryConfiguration typeDiscoveryConfiguration = bootstrap.startExtensions(extensions);
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/weld/EarDeployment.html">EarDeployment</a>(resourceLoader, bootstrap, getBeanDeploymentArchives(resourceLoader, bootstrap,
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="EarDeployment" href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/weld/EarDeployment.html#EarDeployment">EarDeployment</a>(resourceLoader, bootstrap, getBeanDeploymentArchives(resourceLoader, bootstrap,
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>                  typeDiscoveryConfiguration.getKnownBeanDefiningAnnotations()), extensions);
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>      }
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>  
@@ -128,7 +128,7 @@
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>             Set&lt;Class&lt;? <strong class="jxr_keyword">extends</strong> Annotation&gt;&gt; beanDefiningAnnotations) {
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>         DiscoveryStrategy strategy = DiscoveryStrategyFactory.create(resourceLoader, bootstrap, beanDefiningAnnotations,
 <a class="jxr_linenumber" name="L122" href="#L122">122</a>                 false);
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>         strategy.setScanner(<strong class="jxr_keyword">new</strong> <a href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/weld/JarsBeanArchiveScanner.html">JarsBeanArchiveScanner</a>(bootstrap, libraries));
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>         strategy.setScanner(<strong class="jxr_keyword">new</strong> <a name="JarsBeanArchiveScanner" href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/weld/JarsBeanArchiveScanner.html#JarsBeanArchiveScanner">JarsBeanArchiveScanner</a>(bootstrap, libraries));
 <a class="jxr_linenumber" name="L124" href="#L124">124</a>         <strong class="jxr_keyword">return</strong> strategy.performDiscovery().stream().peek(archive -&gt; archive.getServices().add(EEModuleDescriptor.<strong class="jxr_keyword">class</strong>,
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>                 <strong class="jxr_keyword">new</strong> EEModuleDescriptorImpl(archive.getId(), ModuleType.EAR))).collect(Collectors.toSet());
 <a class="jxr_linenumber" name="L126" href="#L126">126</a>     }
@@ -138,7 +138,7 @@
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>         Set&lt;Class&lt;? <strong class="jxr_keyword">extends</strong> Annotation&gt;&gt; annotations = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;(beanDefiningAnnotations);
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>         ejbUtil.addBeanDefiningAnnotations(annotations);
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>         DiscoveryStrategy strategy = DiscoveryStrategyFactory.create(resourceLoader, bootstrap, annotations, false);
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>         strategy.setScanner(<strong class="jxr_keyword">new</strong> <a href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/weld/JarsBeanArchiveScanner.html">JarsBeanArchiveScanner</a>(bootstrap, ejbs));
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>         strategy.setScanner(<strong class="jxr_keyword">new</strong> <a name="JarsBeanArchiveScanner" href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/weld/JarsBeanArchiveScanner.html#JarsBeanArchiveScanner">JarsBeanArchiveScanner</a>(bootstrap, ejbs));
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>         <strong class="jxr_keyword">return</strong> strategy.performDiscovery().stream().map(ejbUtil::addEjbDescriptors).collect(Collectors.toSet());
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>     }
 <a class="jxr_linenumber" name="L136" href="#L136">136</a> 
@@ -213,6 +213,6 @@
 <a class="jxr_linenumber" name="L205" href="#L205">205</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2018. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019. All rights reserved.</div>
 </body>
 </html>

@@ -22,7 +22,7 @@
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_comment"> * </em>
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_comment"> * You should have received a copy of the GNU Lesser General Public License</em>
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_comment"> * along with this program.</em>
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_comment"> * If not, see &lt;<a href="http://www.gnu.org/licenses/lgpl-3.0.txt&gt;" target="alexandria_uri">http://www.gnu.org/licenses/lgpl-3.0.txt&gt;</a>.</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_comment"> * If not, see &lt;<a href="http://www.gnu.org/licenses/lgpl-3.0.txt&gt;." target="alexandria_uri">http://www.gnu.org/licenses/lgpl-3.0.txt&gt;.</a></em>
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.MatcherAssert.assertThat;
@@ -46,7 +46,7 @@
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> org.jboss.weld.ejb.spi.BusinessInterfaceDescriptor;
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> org.junit.Test;
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/weld/SimpleEjbDescriptorTest.html">SimpleEjbDescriptorTest</a> {
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="SimpleEjbDescriptorTest" href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/weld/SimpleEjbDescriptorTest.html#SimpleEjbDescriptorTest">SimpleEjbDescriptorTest</a> {
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>      @Test
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> collectLocalInterfaces_localBeanPresent() {
@@ -100,24 +100,24 @@
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>      }
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>  
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>      @LocalBean
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/weld/SimpleEjbDescriptorTest.html">LocalBeanBean</a> {}
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> LocalBeanBean {}
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>  
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/weld/SimpleEjbDescriptorTest.html">NoAnnotation</a> {}
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> NoAnnotation {}
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>  
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>      @Remote(Comparable.<strong class="jxr_keyword">class</strong>)
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/weld/SimpleEjbDescriptorTest.html">RemoteBean</a> {}
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> RemoteBean {}
 <a class="jxr_linenumber" name="L101" href="#L101">101</a> 
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>     @Remote
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">interface</strong> <a href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/weld/SimpleEjbDescriptorTest.html">RemoteInterface</a> {}
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/weld/SimpleEjbDescriptorTest.html">RemoteInterfaceBean</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/weld/SimpleEjbDescriptorTest.html">RemoteInterface</a> {}
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">interface</strong> RemoteInterface {}
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> RemoteInterfaceBean <strong class="jxr_keyword">implements</strong> RemoteInterface {}
 <a class="jxr_linenumber" name="L105" href="#L105">105</a> 
 <a class="jxr_linenumber" name="L106" href="#L106">106</a>     @Local({Comparable.<strong class="jxr_keyword">class</strong>, RemoteInterface.<strong class="jxr_keyword">class</strong>})
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/weld/SimpleEjbDescriptorTest.html">LocalInterfacesBean</a> {}
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> LocalInterfacesBean {}
 <a class="jxr_linenumber" name="L108" href="#L108">108</a> 
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>     @Local
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/weld/SimpleEjbDescriptorTest.html">LocalAnnotationBean</a> <strong class="jxr_keyword">implements</strong> <a href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/weld/SimpleEjbDescriptorTest.html">RemoteInterface</a> {}
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> LocalAnnotationBean <strong class="jxr_keyword">implements</strong> RemoteInterface {}
 <a class="jxr_linenumber" name="L111" href="#L111">111</a> 
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/weld/SimpleEjbDescriptorTest.html">SingleInteface</a> <strong class="jxr_keyword">implements</strong> Comparable&lt;Object&gt;, Serializable, EJBLocalObject {
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> SingleInteface <strong class="jxr_keyword">implements</strong> Comparable&lt;Object&gt;, Serializable, EJBLocalObject {
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> serialVersionUID = 1L;
 <a class="jxr_linenumber" name="L114" href="#L114">114</a> 
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>         @Override
@@ -147,14 +147,14 @@
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>     }
 <a class="jxr_linenumber" name="L140" href="#L140">140</a> 
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Matcher&lt;BusinessInterfaceDescriptor&lt;?&gt;&gt; businessInterface(Class&lt;?&gt; interfaceClass) {
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/weld/SimpleEjbDescriptorTest.html">BusinessInterfaceMatcher</a>(interfaceClass);
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> BusinessInterfaceMatcher(interfaceClass);
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>     }
 <a class="jxr_linenumber" name="L144" href="#L144">144</a> 
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/weld/SimpleEjbDescriptorTest.html">BusinessInterfaceMatcher</a> <strong class="jxr_keyword">extends</strong> CustomMatcher&lt;BusinessInterfaceDescriptor&lt;?&gt;&gt; {
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> BusinessInterfaceMatcher <strong class="jxr_keyword">extends</strong> CustomMatcher&lt;BusinessInterfaceDescriptor&lt;?&gt;&gt; {
 <a class="jxr_linenumber" name="L146" href="#L146">146</a> 
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Class&lt;?&gt; interfaceClass;
 <a class="jxr_linenumber" name="L148" href="#L148">148</a> 
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>         <strong class="jxr_keyword">private</strong> <a href="../../../../../../../com/github/jonasrutishauser/cdi/maven/plugin/weld/SimpleEjbDescriptorTest.html">BusinessInterfaceMatcher</a>(Class&lt;?&gt; interfaceClass) {
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>         <strong class="jxr_keyword">private</strong> BusinessInterfaceMatcher(Class&lt;?&gt; interfaceClass) {
 <a class="jxr_linenumber" name="L150" href="#L150">150</a>             <strong class="jxr_keyword">super</strong>(<span class="jxr_string">"BusinessInterface "</span> + interfaceClass.getName());
 <a class="jxr_linenumber" name="L151" href="#L151">151</a>             <strong class="jxr_keyword">this</strong>.interfaceClass = interfaceClass;
 <a class="jxr_linenumber" name="L152" href="#L152">152</a>         }
@@ -170,6 +170,6 @@
 <a class="jxr_linenumber" name="L162" href="#L162">162</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2018. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2019. All rights reserved.</div>
 </body>
 </html>
