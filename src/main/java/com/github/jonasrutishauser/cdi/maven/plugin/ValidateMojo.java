@@ -23,10 +23,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.inject.Inject;
+
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -47,8 +48,11 @@ import com.github.jonasrutishauser.cdi.maven.plugin.war.WarUtil;
 @Mojo(name = "validate", defaultPhase = LifecyclePhase.VERIFY, requiresProject = true, threadSafe = true)
 public class ValidateMojo extends AbstractMojo {
 
-    @Parameter(defaultValue = "${project}", readonly = true)
-    private MavenProject project;
+    private final MavenProject project;
+
+    private final ArchiverManager archiverManager;
+
+    private final Map<String, String> oldSystemProperties = new HashMap<>();
 
     @Parameter(defaultValue = "${project.build.directory}/cdi", readonly = true)
     private File workDirectory;
@@ -56,10 +60,11 @@ public class ValidateMojo extends AbstractMojo {
     @Parameter
     private Map<String, String> systemProperties = new HashMap<>();
 
-    @Component
-    private ArchiverManager archiverManager;
-    
-    private final Map<String, String> oldSystemProperties = new HashMap<>();
+    @Inject
+    public ValidateMojo(MavenProject project, ArchiverManager archiverManager) {
+        this.project = project;
+        this.archiverManager = archiverManager;
+    }
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -77,7 +82,8 @@ public class ValidateMojo extends AbstractMojo {
             throw new MojoExecutionException("failed to load ear", e);
         }
         systemProperties.forEach((key, value) -> oldSystemProperties.put(key, System.setProperty(key, value)));
-        oldSystemProperties.put("org.jboss.logging.provider", System.setProperty("org.jboss.logging.provider", "slf4j"));
+        oldSystemProperties.put("org.jboss.logging.provider",
+                System.setProperty("org.jboss.logging.provider", "slf4j"));
         CDI11Bootstrap bootstrap = new WeldBootstrap();
         ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();
         try {
