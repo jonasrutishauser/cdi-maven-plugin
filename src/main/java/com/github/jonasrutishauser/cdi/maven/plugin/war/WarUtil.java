@@ -30,9 +30,8 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import javax.enterprise.inject.spi.Extension;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.archiver.UnArchiver;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
@@ -43,7 +42,6 @@ import org.jboss.weld.bootstrap.spi.EEModuleDescriptor;
 import org.jboss.weld.bootstrap.spi.EEModuleDescriptor.ModuleType;
 import org.jboss.weld.bootstrap.spi.Metadata;
 import org.jboss.weld.bootstrap.spi.helpers.EEModuleDescriptorImpl;
-import org.jboss.weld.bootstrap.spi.helpers.MetadataImpl;
 import org.jboss.weld.environment.deployment.WeldBeanDeploymentArchive;
 import org.jboss.weld.environment.deployment.discovery.DiscoveryStrategy;
 import org.jboss.weld.environment.deployment.discovery.DiscoveryStrategyFactory;
@@ -54,9 +52,8 @@ import com.github.jonasrutishauser.cdi.maven.plugin.ArchiveUtil;
 import com.github.jonasrutishauser.cdi.maven.plugin.ear.EjbUtil;
 import com.github.jonasrutishauser.cdi.maven.plugin.weld.WarBeanArchiveScanner;
 import com.github.jonasrutishauser.cdi.maven.plugin.weld.WarDeployment;
-import com.github.jonasrutishauser.cdi.maven.plugin.weld.bootstrap.PredefinedBeansExtension;
 
-public class WarUtil implements ArchiveUtil {
+public class WarUtil extends ArchiveUtil {
 
     private final ArchiverManager archiverManager;
     private final EjbUtil ejbUtil = new EjbUtil();
@@ -76,11 +73,7 @@ public class WarUtil implements ArchiveUtil {
     }
 
     @Override
-    public void init(File workDirectory, File warFile) throws MalformedURLException {
-        init(workDirectory, warFile, getClass().getClassLoader());
-    }
-
-    private void init(File workDirectory, File warFile, ClassLoader parentClassloader) throws MalformedURLException {
+    public void init(File workDirectory, File warFile, ClassLoader parentClassloader) throws MalformedURLException {
         UnArchiver unArchiver;
         try {
             unArchiver = archiverManager.getUnArchiver(warFile);
@@ -106,10 +99,10 @@ public class WarUtil implements ArchiveUtil {
     }
 
     @Override
-    public Deployment createDeployment(CDI11Bootstrap bootstrap) {
+    public Deployment createDeployment(CDI11Bootstrap bootstrap) throws MojoExecutionException {
         Set<Metadata<Extension>> extensions = StreamSupport
                 .stream(bootstrap.loadExtensions(warClassloader).spliterator(), false).collect(Collectors.toSet());
-        extensions.add(MetadataImpl.from(new PredefinedBeansExtension(Validator.class, ValidatorFactory.class)));
+        addDefaultExtensions(extensions);
         TypeDiscoveryConfiguration typeDiscoveryConfiguration = bootstrap.startExtensions(extensions);
         Set<WeldBeanDeploymentArchive> archives = createArchives(bootstrap,
                 typeDiscoveryConfiguration.getKnownBeanDefiningAnnotations());

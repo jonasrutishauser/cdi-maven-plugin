@@ -1,5 +1,7 @@
 package com.github.jonasrutishauser.cdi.maven.plugin.ear;
 
+import static javax.xml.XMLConstants.ACCESS_EXTERNAL_DTD;
+import static javax.xml.XMLConstants.ACCESS_EXTERNAL_SCHEMA;
 import static javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING;
 
 /*
@@ -37,8 +39,6 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import javax.enterprise.inject.spi.Extension;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -47,6 +47,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathException;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.archiver.UnArchiver;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
@@ -57,7 +58,6 @@ import org.jboss.weld.bootstrap.spi.EEModuleDescriptor;
 import org.jboss.weld.bootstrap.spi.EEModuleDescriptor.ModuleType;
 import org.jboss.weld.bootstrap.spi.Metadata;
 import org.jboss.weld.bootstrap.spi.helpers.EEModuleDescriptorImpl;
-import org.jboss.weld.bootstrap.spi.helpers.MetadataImpl;
 import org.jboss.weld.environment.deployment.WeldBeanDeploymentArchive;
 import org.jboss.weld.environment.deployment.discovery.DiscoveryStrategy;
 import org.jboss.weld.environment.deployment.discovery.DiscoveryStrategyFactory;
@@ -73,9 +73,8 @@ import com.github.jonasrutishauser.cdi.maven.plugin.ArchiveUtil;
 import com.github.jonasrutishauser.cdi.maven.plugin.war.WarUtil;
 import com.github.jonasrutishauser.cdi.maven.plugin.weld.EarDeployment;
 import com.github.jonasrutishauser.cdi.maven.plugin.weld.JarsBeanArchiveScanner;
-import com.github.jonasrutishauser.cdi.maven.plugin.weld.bootstrap.PredefinedBeansExtension;
 
-public class EarUtil implements ArchiveUtil {
+public class EarUtil extends ArchiveUtil {
 
     private final ArchiverManager archiverManager;
     private final EjbUtil ejbUtil = new EjbUtil();
@@ -90,10 +89,10 @@ public class EarUtil implements ArchiveUtil {
         this.archiverManager = archiverManager;
     }
 
-    public Deployment createDeployment(CDI11Bootstrap bootstrap) {
+    public Deployment createDeployment(CDI11Bootstrap bootstrap) throws MojoExecutionException {
         ResourceLoader resourceLoader = new ClassLoaderResourceLoader(earClassloader);
         Set<Metadata<Extension>> extensions = getExtensions(bootstrap);
-        extensions.add(MetadataImpl.from(new PredefinedBeansExtension(Validator.class, ValidatorFactory.class)));
+        addDefaultExtensions(extensions);
         TypeDiscoveryConfiguration typeDiscoveryConfiguration = bootstrap.startExtensions(extensions);
         return new EarDeployment(resourceLoader, bootstrap, getBeanDeploymentArchives(resourceLoader, bootstrap,
                 typeDiscoveryConfiguration.getKnownBeanDefiningAnnotations()), extensions);
@@ -150,7 +149,7 @@ public class EarUtil implements ArchiveUtil {
     }
 
     @Override
-    public void init(File workDirectory, File earFile) throws MalformedURLException {
+    public void init(File workDirectory, File earFile, ClassLoader parentClassloader) throws MalformedURLException {
         UnArchiver unArchiver;
         try {
             unArchiver = archiverManager.getUnArchiver(earFile);
@@ -166,6 +165,8 @@ public class EarUtil implements ArchiveUtil {
         Set<File> warFiles = new HashSet<>();
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setAttribute(ACCESS_EXTERNAL_DTD, "");
+            factory.setAttribute(ACCESS_EXTERNAL_SCHEMA, "");
             factory.setFeature(FEATURE_SECURE_PROCESSING, true);
             DocumentBuilder documentBuilder = factory.newDocumentBuilder();
             Document doc = documentBuilder.parse(new File(extractedDir, "META-INF/application.xml"));
@@ -201,7 +202,7 @@ public class EarUtil implements ArchiveUtil {
         for (File library : libraries) {
             urls.add(library.toURI().toURL());
         }
-        earClassloader = new URLClassLoader(urls.toArray(new URL[urls.size()]), getClass().getClassLoader());
+        earClassloader = new URLClassLoader(urls.toArray(new URL[urls.size()]), parentClassloader);
         for (File warFile : warFiles) {
             wars.add(WarUtil.create(archiverManager, workDirectory, warFile, earClassloader));
         }

@@ -36,7 +36,7 @@ import io.takari.maven.testing.executor.MavenVersions;
 import io.takari.maven.testing.executor.junit.MavenJUnitTestRunner;
 
 @RunWith(MavenJUnitTestRunner.class)
-@MavenVersions({"3.5.0", "3.5.3", "3.6.2"})
+@MavenVersions({"3.6.3"})
 public class ValidateMojoIT {
 
     @Rule
@@ -188,6 +188,15 @@ public class ValidateMojoIT {
                 .execute("clean", "verify");
 
         result.assertErrorFreeLog().assertLogText("Managed Bean [class test.TestWarImpl]");
+    }
+
+    @Test
+    public void verifyMicroprofileValid() throws Exception {
+        File basedir = resources.getBasedir("microprofile");
+
+        MavenExecutionResult result = mavenRuntime.forProject(basedir).execute("clean", "verify");
+
+        result.assertErrorFreeLog().assertLogText("Session bean [class test.TestBean");
     }
 
 }
