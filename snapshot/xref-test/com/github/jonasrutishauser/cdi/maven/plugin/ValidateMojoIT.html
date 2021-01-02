@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-<title>/home/travis/build/jonasrutishauser/cdi-maven-plugin/src/test/java/com/github/jonasrutishauser/cdi/maven/plugin/ValidateMojoIT.java xref</title>
+<title>/home/runner/work/cdi-maven-plugin/cdi-maven-plugin/src/test/java/com/github/jonasrutishauser/cdi/maven/plugin/ValidateMojoIT.java xref</title>
 <link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
 </head>
 <body>
@@ -44,7 +44,7 @@
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> io.takari.maven.testing.executor.junit.MavenJUnitTestRunner;
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  @RunWith(MavenJUnitTestRunner.<strong class="jxr_keyword">class</strong>)
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  @MavenVersions({<span class="jxr_string">"3.5.0"</span>, <span class="jxr_string">"3.5.3"</span>, <span class="jxr_string">"3.6.2"</span>})
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  @MavenVersions({<span class="jxr_string">"3.6.3"</span>})
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> ValidateMojoIT {
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>      @Rule
@@ -198,9 +198,18 @@
 <a class="jxr_linenumber" name="L190" href="#L190">190</a>         result.assertErrorFreeLog().assertLogText(<span class="jxr_string">"Managed Bean [class test.TestWarImpl]"</span>);
 <a class="jxr_linenumber" name="L191" href="#L191">191</a>     }
 <a class="jxr_linenumber" name="L192" href="#L192">192</a> 
-<a class="jxr_linenumber" name="L193" href="#L193">193</a> }
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>     @Test
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> verifyMicroprofileValid() <strong class="jxr_keyword">throws</strong> Exception {
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>         File basedir = resources.getBasedir(<span class="jxr_string">"microprofile"</span>);
+<a class="jxr_linenumber" name="L196" href="#L196">196</a> 
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>         MavenExecutionResult result = mavenRuntime.forProject(basedir).execute(<span class="jxr_string">"clean"</span>, <span class="jxr_string">"verify"</span>);
+<a class="jxr_linenumber" name="L198" href="#L198">198</a> 
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>         result.assertErrorFreeLog().assertLogText(<span class="jxr_string">"Session bean [class test.TestBean"</span>);
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>     }
+<a class="jxr_linenumber" name="L201" href="#L201">201</a> 
+<a class="jxr_linenumber" name="L202" href="#L202">202</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2019. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2021. All rights reserved.</div>
 </body>
 </html>

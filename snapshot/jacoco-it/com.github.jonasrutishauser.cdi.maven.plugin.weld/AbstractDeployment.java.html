@@ -41,7 +41,7 @@ public abstract class AbstractDeployment extends WeldDeployment {
 
 <span class="fc" id="L42">    private final InjectionServices injectionServices = new MockInjectionServices();</span>
 
-    public AbstractDeployment(ResourceLoader resourceLoader, Bootstrap bootstrap,
+    protected AbstractDeployment(ResourceLoader resourceLoader, Bootstrap bootstrap,
             Set&lt;WeldBeanDeploymentArchive&gt; beanDeploymentArchives, Iterable&lt;Metadata&lt;Extension&gt;&gt; extensions) {
 <span class="fc" id="L46">        super(resourceLoader, bootstrap, beanDeploymentArchives, extensions);</span>
 <span class="fc" id="L47">        beanDeploymentArchives</span>
@@ -57,4 +57,4 @@ public abstract class AbstractDeployment extends WeldDeployment {
 <span class="fc" id="L57">    }</span>
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
