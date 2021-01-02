@@ -41,7 +41,7 @@ public abstract class AbstractDeployment extends WeldDeployment {
 
     private final InjectionServices injectionServices = new MockInjectionServices();
 
-    public AbstractDeployment(ResourceLoader resourceLoader, Bootstrap bootstrap,
+    protected AbstractDeployment(ResourceLoader resourceLoader, Bootstrap bootstrap,
             Set<WeldBeanDeploymentArchive> beanDeploymentArchives, Iterable<Metadata<Extension>> extensions) {
         super(resourceLoader, bootstrap, beanDeploymentArchives, extensions);
         beanDeploymentArchives

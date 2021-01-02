@@ -1,7 +1,5 @@
 package com.github.jonasrutishauser.cdi.maven.plugin.ear;
 
-import static javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING;
-
 /*
  * Copyright (C) 2017 Jonas Rutishauser
  * 
@@ -18,6 +16,10 @@ import static javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING;
  * along with this program.
  * If not, see <http://www.gnu.org/licenses/lgpl-3.0.txt>.
  */
+
+import static javax.xml.XMLConstants.ACCESS_EXTERNAL_DTD;
+import static javax.xml.XMLConstants.ACCESS_EXTERNAL_SCHEMA;
+import static javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING;
 
 import java.io.File;
 import java.io.IOException;
@@ -104,6 +106,8 @@ public class EjbUtil {
             String descriptorUrl) {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+	    factory.setAttribute(ACCESS_EXTERNAL_DTD, "");
+	    factory.setAttribute(ACCESS_EXTERNAL_SCHEMA, "");
             factory.setFeature(FEATURE_SECURE_PROCESSING, true);
             DocumentBuilder documentBuilder = factory.newDocumentBuilder();
             Document doc = documentBuilder.parse(descriptorUrl);
