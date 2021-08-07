@@ -43,6 +43,7 @@ import org.apache.maven.shared.transfer.artifact.resolve.ArtifactResult;
 import org.apache.maven.shared.transfer.dependencies.resolve.DependencyResolver;
 import org.apache.maven.shared.transfer.dependencies.resolve.DependencyResolverException;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
+import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.jboss.weld.bootstrap.WeldBootstrap;
 import org.jboss.weld.bootstrap.api.CDI11Bootstrap;
 import org.jboss.weld.bootstrap.api.Environments;
@@ -53,7 +54,7 @@ import com.github.jonasrutishauser.cdi.maven.plugin.war.WarUtil;
 /**
  * Validates the CDI configuration of a war or ear.
  * 
- * @author jonas
+ * @author Jonas Rutishauser
  */
 @Mojo(name = "validate", defaultPhase = LifecyclePhase.VERIFY, requiresProject = true, threadSafe = true)
 public class ValidateMojo extends AbstractMojo {
@@ -90,6 +91,7 @@ public class ValidateMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        fixCdiApiInClassloader();
         ArchiveUtil util;
         if ("ear".equals(project.getPackaging())) {
             util = new EarUtil(archiverManager);
@@ -127,6 +129,15 @@ public class ValidateMojo extends AbstractMojo {
                     System.setProperty(key, value);
                 }
             });
+        }
+    }
+
+    private void fixCdiApiInClassloader() {
+        if (getClass().getClassLoader() instanceof ClassRealm) {
+            ClassRealm ownRealm = (ClassRealm) getClass().getClassLoader();
+            if (ownRealm.getImportClassLoader("javax.enterprise.inject") instanceof ClassRealm) {
+                ownRealm.importFrom(new EmptyClassLoader(), "javax.enterprise.inject");
+            }
         }
     }
 
