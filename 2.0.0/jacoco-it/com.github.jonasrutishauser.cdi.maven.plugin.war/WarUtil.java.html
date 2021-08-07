@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WarUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CDI Maven Plugin</a> &gt; <a href="index.source.html" class="el_package">com.github.jonasrutishauser.cdi.maven.plugin.war</a> &gt; <span class="el_source">WarUtil.java</span></div><h1>WarUtil.java</h1><pre class="source lang-java linenums">package com.github.jonasrutishauser.cdi.maven.plugin.war;
+
+/*
+ * Copyright (C) 2017 Jonas Rutishauser
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation version 3 of the License.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.
+ * If not, see &lt;http://www.gnu.org/licenses/lgpl-3.0.txt&gt;.
+ */
+
+import java.io.File;
+import java.lang.annotation.Annotation;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import javax.enterprise.inject.spi.Extension;
+
+import org.apache.maven.plugin.MojoExecutionException;
+import org.codehaus.plexus.archiver.UnArchiver;
+import org.codehaus.plexus.archiver.manager.ArchiverManager;
+import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
+import org.jboss.weld.bootstrap.api.CDI11Bootstrap;
+import org.jboss.weld.bootstrap.api.TypeDiscoveryConfiguration;
+import org.jboss.weld.bootstrap.spi.Deployment;
+import org.jboss.weld.bootstrap.spi.EEModuleDescriptor;
+import org.jboss.weld.bootstrap.spi.EEModuleDescriptor.ModuleType;
+import org.jboss.weld.bootstrap.spi.Metadata;
+import org.jboss.weld.bootstrap.spi.helpers.EEModuleDescriptorImpl;
+import org.jboss.weld.environment.deployment.WeldBeanDeploymentArchive;
+import org.jboss.weld.environment.deployment.discovery.DiscoveryStrategy;
+import org.jboss.weld.environment.deployment.discovery.DiscoveryStrategyFactory;
+import org.jboss.weld.resources.ClassLoaderResourceLoader;
+import org.jboss.weld.resources.spi.ResourceLoader;
+
+import com.github.jonasrutishauser.cdi.maven.plugin.ArchiveUtil;
+import com.github.jonasrutishauser.cdi.maven.plugin.ear.EjbUtil;
+import com.github.jonasrutishauser.cdi.maven.plugin.weld.WarBeanArchiveScanner;
+import com.github.jonasrutishauser.cdi.maven.plugin.weld.WarDeployment;
+
+public class WarUtil extends ArchiveUtil {
+
+    private final ArchiverManager archiverManager;
+<span class="fc" id="L59">    private final EjbUtil ejbUtil = new EjbUtil();</span>
+
+    private File war;
+    private URLClassLoader warClassloader;
+
+<span class="fc" id="L64">    public WarUtil(ArchiverManager archiverManager) {</span>
+<span class="fc" id="L65">        this.archiverManager = archiverManager;</span>
+<span class="fc" id="L66">    }</span>
+
+    public static WarUtil create(ArchiverManager archiverManager, File workDirectory, File warFile,
+            ClassLoader earClassloader) throws MalformedURLException {
+<span class="fc" id="L70">        WarUtil util = new WarUtil(archiverManager);</span>
+<span class="fc" id="L71">        util.init(workDirectory, warFile, earClassloader);</span>
+<span class="fc" id="L72">        return util;</span>
+    }
+
+    @Override
+    public void init(File workDirectory, File warFile, ClassLoader parentClassloader) throws MalformedURLException {
+        UnArchiver unArchiver;
+        try {
+<span class="fc" id="L79">            unArchiver = archiverManager.getUnArchiver(warFile);</span>
+<span class="nc" id="L80">        } catch (NoSuchArchiverException e) {</span>
+<span class="nc" id="L81">            throw new IllegalStateException(e);</span>
+<span class="fc" id="L82">        }</span>
+<span class="fc" id="L83">        File extractedDir = new File(workDirectory, warFile.getName());</span>
+<span class="fc" id="L84">        this.war = extractedDir;</span>
+<span class="fc" id="L85">        extractedDir.mkdirs();</span>
+<span class="fc" id="L86">        unArchiver.setDestDirectory(extractedDir);</span>
+<span class="fc" id="L87">        unArchiver.setSourceFile(warFile);</span>
+<span class="fc" id="L88">        unArchiver.extract();</span>
+<span class="fc" id="L89">        File libDir = new File(extractedDir, &quot;WEB-INF/lib&quot;);</span>
+<span class="fc" id="L90">        File[] jars = libDir.listFiles(file -&gt; file.getName().endsWith(&quot;.jar&quot;));</span>
+<span class="fc" id="L91">        List&lt;URL&gt; urls = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L92">        urls.add(new File(extractedDir, WarBeanArchiveScanner.CLASSES).toURI().toURL());</span>
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">        if (jars != null) {</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">            for (File jar : jars) {</span>
+<span class="fc" id="L95">                urls.add(jar.toURI().toURL());</span>
+            }
+        }
+<span class="fc" id="L98">        warClassloader = new URLClassLoader(urls.toArray(new URL[urls.size()]), parentClassloader);</span>
+<span class="fc" id="L99">    }</span>
+
+    @Override
+    public Deployment createDeployment(CDI11Bootstrap bootstrap) throws MojoExecutionException {
+<span class="fc" id="L103">        Set&lt;Metadata&lt;Extension&gt;&gt; extensions = StreamSupport</span>
+<span class="fc" id="L104">                .stream(bootstrap.loadExtensions(warClassloader).spliterator(), false).collect(Collectors.toSet());</span>
+<span class="fc" id="L105">        addDefaultExtensions(extensions);</span>
+<span class="fc" id="L106">        TypeDiscoveryConfiguration typeDiscoveryConfiguration = bootstrap.startExtensions(extensions);</span>
+<span class="fc" id="L107">        Set&lt;WeldBeanDeploymentArchive&gt; archives = createArchives(bootstrap,</span>
+<span class="fc" id="L108">                typeDiscoveryConfiguration.getKnownBeanDefiningAnnotations());</span>
+<span class="fc" id="L109">        ResourceLoader resourceLoader = archives.iterator().next().getServices().get(ResourceLoader.class);</span>
+<span class="fc" id="L110">        return new WarDeployment(resourceLoader, bootstrap, archives, extensions);</span>
+    }
+
+    @Override
+    public ClassLoader getClassLoader() {
+<span class="fc" id="L115">        return warClassloader;</span>
+    }
+
+    public Set&lt;WeldBeanDeploymentArchive&gt; createArchives(CDI11Bootstrap bootstrap,
+            Set&lt;Class&lt;? extends Annotation&gt;&gt; beanDefiningAnnotations) {
+<span class="fc" id="L120">        Set&lt;Class&lt;? extends Annotation&gt;&gt; annotations = new HashSet&lt;&gt;(beanDefiningAnnotations);</span>
+<span class="fc" id="L121">        ejbUtil.addBeanDefiningAnnotations(annotations);</span>
+<span class="fc" id="L122">        DiscoveryStrategy strategy = DiscoveryStrategyFactory.create(new ClassLoaderResourceLoader(warClassloader),</span>
+                bootstrap, annotations, false);
+<span class="fc" id="L124">        strategy.setScanner(new WarBeanArchiveScanner(bootstrap, war, warClassloader.getURLs()));</span>
+<span class="fc" id="L125">        Set&lt;WeldBeanDeploymentArchive&gt; archives = strategy.performDiscovery().stream().map(ejbUtil::addEjbDescriptors)</span>
+<span class="fc" id="L126">                .collect(Collectors.toSet());</span>
+<span class="fc" id="L127">        archives.forEach(this::addServices);</span>
+<span class="fc" id="L128">        return archives;</span>
+    }
+
+    private void addServices(WeldBeanDeploymentArchive archive) {
+<span class="fc" id="L132">        archive.getServices().add(EEModuleDescriptor.class,</span>
+<span class="fc" id="L133">                new EEModuleDescriptorImpl(archive.getId(), ModuleType.WEB));</span>
+<span class="fc" id="L134">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -1,0 +1,22 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.ear,EjbUtil.new WeldBeanDeploymentArchive() {...},16,0,0,0,2,0,2,0,2,0
+CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.ear,EjbUtil,369,0,26,0,65,0,24,0,11,0
+CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.ear,EarUtil,474,0,16,0,89,0,21,0,13,0
+CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.weld.bootstrap,PredefinedBeansExtension,22,0,0,0,6,0,2,0,2,0
+CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.weld.bootstrap,PredefinedBeansExtension.new ForwardingAnnotatedType() {...},16,0,0,0,3,0,3,0,3,0
+CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.war,WarUtil,227,0,4,0,46,0,10,0,8,0
+CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.weld.services,MockEjbServices,7,0,0,0,4,0,4,0,4,0
+CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.weld.services,MockTransactionServices,9,0,0,0,5,0,5,0,5,0
+CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.weld.services,MockSecurityServices,6,0,0,0,3,0,3,0,3,0
+CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.weld.services,MockInjectionServices,8,0,0,0,5,0,4,0,4,0
+CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.weld,AbstractDeployment,51,0,0,0,11,0,3,0,3,0
+CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.weld,SimpleEjbDescriptor.BusinessInterface,0,9,0,0,0,4,0,2,0,2
+CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.weld,WarDeployment,7,0,0,0,2,0,1,0,1,0
+CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.weld,JarsBeanArchiveScanner,64,0,2,0,11,0,4,0,3,0
+CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.weld,WarBeanArchiveScanner,98,0,6,0,16,0,6,0,3,0
+CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.weld,EarDeployment,85,0,10,0,11,0,11,0,6,0
+CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin.weld,SimpleEjbDescriptor,54,150,4,24,12,26,12,18,10,6
+CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin,EmptyClassLoader,8,0,0,0,2,0,2,0,2,0
+CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin,HelpMojo,893,0,110,0,159,0,71,0,16,0
+CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin,ArchiveUtil,47,0,0,0,10,0,2,0,2,0
+CDI Maven Plugin,com.github.jonasrutishauser.cdi.maven.plugin,ValidateMojo,386,0,16,0,94,0,15,0,7,0
